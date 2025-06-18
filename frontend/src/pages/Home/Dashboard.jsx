@@ -1,0 +1,200 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { PlusCircle, Trash2,Bot } from 'lucide-react';
+import CreateCardModal from '../../components/Cards/CreateCardForm';
+import axios from '../../utils/axiosInstance';
+import { API } from '../../utils/apiPaths';
+import { Badge } from '@/components/ui/badge';
+import emptyStateImg from '../../assets/empty-state.jpg';
+
+export const Dashboard = () => {
+  const [cards, setCards] = useState([]);
+  const [loading, setLoading] = useState(true); // ✅ Loading state
+  const [modalOpen, setModalOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const gradients = [
+    'from-[#fde2e4] to-[#fad2e1]',
+    'from-[#e0f7fa] to-[#a5dee5]',
+    'from-[#e0bbE4] to-[#957DAD]',
+    'from-[#c8e6c9] to-[#a5d6a7]',
+    'from-[#fff3cd] to-[#ffe8a1]',
+    'from-[#d7f9f1] to-[#b2f0e6]'
+  ];
+
+  const badgeColors = [
+    'bg-orange-100 text-orange-800',
+    'bg-green-100 text-green-800',
+    'bg-blue-100 text-blue-800',
+    'bg-purple-100 text-purple-800',
+    'bg-pink-100 text-pink-800',
+    'bg-yellow-100 text-yellow-800'
+  ];
+
+  const fetchCards = async () => {
+    try {
+      setLoading(true); // ✅ Start loading
+      await new Promise((res) => setTimeout(res, 1000));
+      const res = await axios.get(API.INTERVIEW.GET_ALL);
+      setCards(res.data);
+    } catch (err) {
+      console.error('Failed to load cards', err);
+    } finally {
+      setLoading(false); // ✅ Stop loading
+    }
+  };
+
+  useEffect(() => {
+    fetchCards();
+  }, []);
+
+  const handleCreated = (sessionId) => {
+    navigate(`/interview-prep/${sessionId}`);
+  };
+
+  const handleDelete = async (sessionId) => {
+    try {
+      await axios.delete(API.INTERVIEW.DELETE(sessionId));
+      await fetchCards();
+    } catch (err) {
+      console.error('Delete failed', err);
+    }
+  };
+
+  return (
+    <div className="p-6 font-[Urbanist] min-h-screen bg-white dark:bg-zinc-900">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-3xl font-bold text-zinc-800 dark:text-white">Interview AI</h2>
+        <button
+          onClick={() => setModalOpen(true)}
+          className="flex items-center gap-2 bg-orange-500 text-white px-4 py-2 rounded-full shadow hover:bg-orange-600 transition"
+        >
+          <PlusCircle size={20} /> Add New
+        </button>
+      </div>
+
+      {/* Loader */}
+      {loading ? (
+        <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
+          <div className="flex flex-col items-center gap-6">
+            {/* Animated Glowing Dots */}
+            <div className="flex space-x-3">
+              <div className="w-5 h-5 rounded-full bg-orange-500 animate-ping [animation-delay:-0.30s]"></div>
+              <div className="w-5 h-5 rounded-full bg-orange-500 animate-ping [animation-delay:-0.35s]"></div>
+              <div className="w-5 h-5 rounded-full bg-orange-500 animate-ping"></div>
+            </div>
+
+            {/* Logo or Icon Placeholder */}
+            <div className="text-center">
+              {/* Icon + Title Horizontally Aligned */}
+              <div className="flex items-center justify-center gap-2 animate-pulse">
+                <Bot className="w-7 h-7 text-orange-600 drop-shadow-md" />
+                <h1 className="text-xl md:text-2xl font-bold text-orange-600 tracking-wide">
+                  Interview AI
+                </h1>
+              </div>
+
+              {/* Subtitle */}
+              <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 mt-2 animate-fade-in-slow">
+                Setting up your smart dashboard, hold tight...
+              </p>
+            </div>
+
+
+            {/* Optional Bar Loader */}
+            <div className="w-48 h-2 bg-orange-100 dark:bg-gray-800 rounded-full overflow-hidden">
+              <div className="h-full bg-orange-500 animate-loading-bar rounded-full"></div>
+            </div>
+          </div>
+        </div>
+      ) : cards.length === 0 ? (
+        // Empty State
+        <motion.div
+          className="flex flex-col items-center justify-center h-[60vh] text-center text-zinc-600 dark:text-zinc-400"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+        >
+          <img src={emptyStateImg} alt="No Cards" className="w-64 h-64 mb-4 animate-pulse" />
+          <h3 className="text-xl font-semibold">No Interview Cards Found</h3>
+          <p className="text-sm">Start by creating your first interview prep card.</p>
+        </motion.div>
+      ) : (
+        // Card Grid
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {cards.map((card, index) => {
+            const gradient = gradients[index % gradients.length];
+            return (
+              <motion.div
+                key={card.sessionId}
+                onClick={() => navigate(`/interview-prep/${card.sessionId}`)}
+                className={`relative group rounded-xl p-5 shadow-md cursor-pointer bg-gradient-to-br ${gradient} transition hover:shadow-xl`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+              >
+                {/* Top Row */}
+                <div className="flex justify-between items-center mb-3">
+                  <div className="w-10 h-10 bg-white text-green-700 font-bold rounded-full flex items-center justify-center shadow">
+                    {card.initials || "??"}
+                  </div>
+                  <div className="flex gap-1 flex-wrap justify-end">
+                    {(card.tag || '')
+                      .split(',')
+                      .filter(tag => tag.trim())
+                      .map((tag, i) => (
+                        <Badge
+                          key={i}
+                          className={`${badgeColors[i % badgeColors.length]} text-xs px-2 py-0.5 rounded-full`}
+                        >
+                          {tag.trim()}
+                        </Badge>
+                      ))}
+                  </div>
+                </div>
+
+                {/* Title + Description */}
+                <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-1">
+                  {card.title || "Untitled"}
+                </h3>
+                <p className="text-sm text-zinc-800 dark:text-zinc-300 mb-4 line-clamp-3">
+                  {card.desc || "No description provided."}
+                </p>
+
+                {/* Footer */}
+                <div className="flex justify-between text-xs text-zinc-700 dark:text-zinc-400">
+                  <span>Exp: {card.experience || "N/A"}</span>
+                  <span>{card.qna?.length || 0} Q&A</span>
+                  <span>{new Date(card.updatedAt).toLocaleDateString('en-GB')}</span>
+                </div>
+
+                {/* Delete Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(card.sessionId);
+                  }}
+                  className="absolute top-2 right-2 bg-white dark:bg-zinc-800 rounded-full p-1.5 text-red-500 shadow hover:text-red-700 opacity-0 group-hover:opacity-100 transition"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </motion.div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Modal */}
+      {modalOpen && (
+        <CreateCardModal
+          onClose={() => setModalOpen(false)}
+          onCreated={handleCreated}
+        />
+      )}
+    </div>
+  );
+};
+
+export default Dashboard;
