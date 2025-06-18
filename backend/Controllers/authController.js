@@ -1,7 +1,8 @@
 const bcrypt = require('bcryptjs');
 const User = require('../Models/User');
 const cloudinary = require('../utils/cloudinary');
-const fs = require('fs'); // to delete local files if needed
+// const fs = require('fs'); // to delete local files if needed
+const streamifier = require('streamifier');
 
 exports.registerUser = async (req, res) => {
   try {
@@ -9,30 +10,34 @@ exports.registerUser = async (req, res) => {
 
     // Check for existing user
     const existingUser = await User.findOne({ email });
-    if (existingUser)
+    if (existingUser) {
       return res.status(400).json({ message: 'Email already registered' });
-
-    // Upload photo to Cloudinary
-    let uploadedPhotoUrl = null;
-    if (req.file?.path) {
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: 'user_profiles',
-        resource_type: 'image',
-      }); 
-
-
-      uploadedPhotoUrl = result.secure_url;
-
-      // Optionally remove local uploaded file
-      fs.unlinkSync(req.file.path);
     }
-    // console.log('Uploaded photo URL:', uploadedPhotoUrl);
-    
+
+    // Upload profile image from memory to Cloudinary
+    let uploadedPhotoUrl = '';
+    if (req.file) {
+      const streamUpload = (fileBuffer) => {
+        return new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: 'user_profiles', resource_type: 'image' },
+            (error, result) => {
+              if (result) resolve(result);
+              else reject(error);
+            }
+          );
+          streamifier.createReadStream(fileBuffer).pipe(stream);
+        });
+      };
+
+      const result = await streamUpload(req.file.buffer);
+      uploadedPhotoUrl = result.secure_url;
+    }
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create and save new user
+    // Save user
     const newUser = new User({
       fullName,
       email,
@@ -42,12 +47,15 @@ exports.registerUser = async (req, res) => {
 
     await newUser.save();
 
-    res.status(201).json({ message: 'User registered successfully', userId: newUser._id });
+    res.status(201).json({
+      message: 'User registered successfully',
+      userId: newUser._id,
+    });
   } catch (err) {
+    console.error('Registration Error:', err);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
-
 // const jwt = require('jsonwebtoken'); // Optional
 
 exports.loginUser = async (req, res) => {
