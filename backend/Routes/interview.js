@@ -252,5 +252,27 @@ router.post('/ask', async (req, res) => {
   }
 });
 
+router.post('/summarize', async (req, res) => {
+  try {
+    const { text } = req.body;
+
+    if (!text) {
+      return res.status(400).json({ message: 'Answer text is required' });
+    }
+
+    const prompt = `Summarize the following technical answer in 2-3 sentences:\n\n"${text}"`;
+
+    const model = genAI.getGenerativeModel({ model: "models/gemini-1.5-flash" });
+    const result = await model.generateContent(prompt);
+    const summary = result.response.text();
+
+    res.status(200).json({ summary });
+  } catch (err) {
+    console.error('Summarize endpoint failed:', err);
+    res.status(500).json({ message: 'Failed to generate summary' });
+  }
+});
+
+
 
 module.exports = router;

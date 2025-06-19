@@ -89,6 +89,12 @@ const InterviewPrep = () => {
   const [editableIndex, setEditableIndex] = useState(null);
   const [generatingMore, setGeneratingMore] = useState(false);
   const [regeneratingIndex, setRegeneratingIndex] = useState(null);
+  const [importantOnly, setImportantOnly] = useState(false);
+  const [importantMap, setImportantMap] = useState({});
+  const [summaries, setSummaries] = useState({});
+  const [summarizingIndex, setSummarizingIndex] = useState(null);
+
+
 
   useEffect(() => {
     if (darkMode) {
@@ -156,8 +162,41 @@ const InterviewPrep = () => {
       setGeneratingMore(false);
     }
   };
+  const toggleImportant = (index) => {
+    setImportantMap((prev) => ({
+      ...prev,
+      [index]: !prev[index]
+    }));
+  };
+  const handleSummarize = async (index) => {
+    const answerParts = session.qna[index].answerParts;
+    const fullAnswer = answerParts.map(p => p.content).join('\n');
 
-  const visibleQna = session?.qna?.slice(0, visibleCount) || [];
+    setSummarizingIndex(index);
+
+    try {
+      const res = await axios.post(API.INTERVIEW.SUMMARIZE, {
+        text: fullAnswer,
+      });
+      const summary = res.data.summary;
+
+      setSummaries((prev) => ({
+        ...prev,
+        [index]: summary,
+      }));
+      toast.success('Summary generated!');
+    } catch {
+      toast.error('Failed to summarize');
+    } finally {
+      setSummarizingIndex(null);
+    }
+  };
+
+
+
+  const filteredQna = session?.qna?.filter((_, i) => !importantOnly || importantMap[i]) || [];
+  const visibleQna = filteredQna.slice(0, visibleCount);
+
 
   if (loading) {
     return (
@@ -211,6 +250,9 @@ const InterviewPrep = () => {
             </div>
           </div>
           <div className="flex flex-wrap gap-2 mt-6 justify-end dark:text-white">
+            <Button variant="outline" onClick={() => setImportantOnly(p => !p)}>
+              {importantOnly ? 'Show All' : 'Show Only Important'}
+            </Button>
             <Button variant="outline" onClick={() => setExpandedAll(p => !p)}>{expandedAll ? 'Collapse All' : 'Expand All'}</Button>
             <Button variant="outline" onClick={() => setDarkMode(p => !p)}>{darkMode ? <Sun size={16} /> : <Moon size={16} />}</Button>
             <Button variant="outline" onClick={() => exportSessionToMarkdown(session)}>Export</Button>
@@ -218,7 +260,7 @@ const InterviewPrep = () => {
           </div>
         </motion.div>
 
-         {/* Disclaimer Section  */}
+        {/* Disclaimer Section  */}
         <section className="relative px-4 md:px-8 py-4 md:py-6 bg-orange-50 dark:bg-orange-900/10 border border-orange-300 dark:border-orange-800 rounded-xl shadow-md mx-auto mb-8 max-w-4xl animate-fade-in">
           <div className="flex items-center gap-4">
             <div className="animate-bounce text-orange-600">
@@ -234,7 +276,7 @@ const InterviewPrep = () => {
             </div>
           </div>
         </section>
-        
+
         {/* QnA Section */}
         <div className="space-y-6">
           <AnimatePresence>
@@ -260,6 +302,26 @@ const InterviewPrep = () => {
                         <Button onClick={() => handlePin(i)} size="sm" variant="ghost" className="text-orange-600">
                           <Pin size={16} /> Pin
                         </Button>
+                        <Button onClick={() => toggleImportant(i)} size="sm" variant={importantMap[i] ? 'default' : 'ghost'} className="text-yellow-500">
+                          ⭐ {importantMap[i] ? 'Important' : 'Mark Important'}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleSummarize(i)}
+                          disabled={summarizingIndex === i}
+                        >
+                          {summarizingIndex === i ? (
+                            <Loader2 className="animate-spin mr-2" size={16} />
+                          ) : null}
+                          Summary
+                        </Button>
+                        {summaries[i] && (
+                          <div className="mt-4 p-3 rounded-lg bg-yellow-50 border-l-4 border-yellow-400 dark:bg-yellow-900/10">
+                            <strong className="block mb-1 text-yellow-700 dark:text-yellow-200">Summary:</strong>
+                            <p className="text-sm text-gray-800 dark:text-gray-100">{summaries[i]}</p>
+                          </div>
+                        )}
                       </div>
                     </CardContent>
                   </details>

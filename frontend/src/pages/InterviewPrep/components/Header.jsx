@@ -46,7 +46,7 @@ const Header = ({ onLoginClick }) => {
             onClick={() => setShowDropdown((prev) => !prev)}
           >
             <img
-              src={user.photo || '/default-avatar.png'}
+              src={user.photo || '/default-avatar.jpg'}
               alt="User"
               className="w-9 h-9 rounded-full object-cover border border-orange-300"
             />

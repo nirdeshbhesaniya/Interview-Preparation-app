@@ -1,17 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { PlusCircle, Trash2,Bot } from 'lucide-react';
+import { PlusCircle, Trash2, Bot, Search } from 'lucide-react';
 import CreateCardModal from '../../components/Cards/CreateCardForm';
 import axios from '../../utils/axiosInstance';
 import { API } from '../../utils/apiPaths';
 import { Badge } from '@/components/ui/badge';
 import emptyStateImg from '../../assets/empty-state.jpg';
+import { Input } from '@/components/ui/input';
 
 export const Dashboard = () => {
   const [cards, setCards] = useState([]);
-  const [loading, setLoading] = useState(true); // ✅ Loading state
+  const [filteredCards, setFilteredCards] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   const gradients = [
@@ -34,14 +37,15 @@ export const Dashboard = () => {
 
   const fetchCards = async () => {
     try {
-      setLoading(true); // ✅ Start loading
+      setLoading(true);
       await new Promise((res) => setTimeout(res, 1000));
       const res = await axios.get(API.INTERVIEW.GET_ALL);
       setCards(res.data);
+      setFilteredCards(res.data);
     } catch (err) {
       console.error('Failed to load cards', err);
     } finally {
-      setLoading(false); // ✅ Stop loading
+      setLoading(false);
     }
   };
 
@@ -62,11 +66,34 @@ export const Dashboard = () => {
     }
   };
 
+  // Debounced Search
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      const filtered = cards.filter((card) => {
+        const combinedText = `${card.title} ${card.desc} ${card.tag}`.toLowerCase();
+        return combinedText.includes(searchTerm.toLowerCase());
+      });
+      setFilteredCards(filtered);
+    }, 300);
+
+    return () => clearTimeout(delayDebounce);
+  }, [searchTerm, cards]);
+
   return (
     <div className="p-6 font-[Urbanist] min-h-screen bg-white dark:bg-zinc-900">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
         <h2 className="text-3xl font-bold text-zinc-800 dark:text-white">Interview AI</h2>
+        <div className="flex items-center gap-2 w-full sm:w-1/2">
+          <Search size={20} className="absolute ml-3 text-zinc-400" />
+          <Input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search by title, tag, or description"
+            className="w-full pl-10 pr-4 py-2 rounded-full border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm"
+          />
+        </div>
         <button
           onClick={() => setModalOpen(true)}
           className="flex items-center gap-2 bg-orange-500 text-white px-4 py-2 rounded-full shadow hover:bg-orange-600 transition"
@@ -79,38 +106,26 @@ export const Dashboard = () => {
       {loading ? (
         <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
           <div className="flex flex-col items-center gap-6">
-            {/* Animated Glowing Dots */}
             <div className="flex space-x-3">
               <div className="w-5 h-5 rounded-full bg-orange-500 animate-ping [animation-delay:-0.30s]"></div>
               <div className="w-5 h-5 rounded-full bg-orange-500 animate-ping [animation-delay:-0.35s]"></div>
               <div className="w-5 h-5 rounded-full bg-orange-500 animate-ping"></div>
             </div>
-
-            {/* Logo or Icon Placeholder */}
-            <div className="text-center">
-              {/* Icon + Title Horizontally Aligned */}
-              <div className="flex items-center justify-center gap-2 animate-pulse">
-                <Bot className="w-7 h-7 text-orange-600 drop-shadow-md" />
-                <h1 className="text-xl md:text-2xl font-bold text-orange-600 tracking-wide">
-                  Interview AI
-                </h1>
-              </div>
-
-              {/* Subtitle */}
-              <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 mt-2 animate-fade-in-slow">
-                Setting up your smart dashboard, hold tight...
-              </p>
+            <div className="flex items-center justify-center gap-2 animate-pulse">
+              <Bot className="w-7 h-7 text-orange-600 drop-shadow-md" />
+              <h1 className="text-xl md:text-2xl font-bold text-orange-600 tracking-wide">
+                Interview AI
+              </h1>
             </div>
-
-
-            {/* Optional Bar Loader */}
+            <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 mt-2 animate-fade-in-slow">
+              Setting up your smart dashboard, hold tight...
+            </p>
             <div className="w-48 h-2 bg-orange-100 dark:bg-gray-800 rounded-full overflow-hidden">
               <div className="h-full bg-orange-500 animate-loading-bar rounded-full"></div>
             </div>
           </div>
         </div>
-      ) : cards.length === 0 ? (
-        // Empty State
+      ) : filteredCards.length === 0 ? (
         <motion.div
           className="flex flex-col items-center justify-center h-[60vh] text-center text-zinc-600 dark:text-zinc-400"
           initial={{ opacity: 0 }}
@@ -119,12 +134,11 @@ export const Dashboard = () => {
         >
           <img src={emptyStateImg} alt="No Cards" className="w-64 h-64 mb-4 animate-pulse" />
           <h3 className="text-xl font-semibold">No Interview Cards Found</h3>
-          <p className="text-sm">Start by creating your first interview prep card.</p>
+          <p className="text-sm">Try a different search or create a new one.</p>
         </motion.div>
       ) : (
-        // Card Grid
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {cards.map((card, index) => {
+          {filteredCards.map((card, index) => {
             const gradient = gradients[index % gradients.length];
             return (
               <motion.div
@@ -135,7 +149,6 @@ export const Dashboard = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
               >
-                {/* Top Row */}
                 <div className="flex justify-between items-center mb-3">
                   <div className="w-10 h-10 bg-white text-green-700 font-bold rounded-full flex items-center justify-center shadow">
                     {card.initials || "??"}
@@ -154,23 +167,17 @@ export const Dashboard = () => {
                       ))}
                   </div>
                 </div>
-
-                {/* Title + Description */}
                 <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-1">
                   {card.title || "Untitled"}
                 </h3>
                 <p className="text-sm text-zinc-800 dark:text-zinc-300 mb-4 line-clamp-3">
                   {card.desc || "No description provided."}
                 </p>
-
-                {/* Footer */}
                 <div className="flex justify-between text-xs text-zinc-700 dark:text-zinc-400">
                   <span>Exp: {card.experience || "N/A"}</span>
                   <span>{card.qna?.length || 0} Q&A</span>
                   <span>{new Date(card.updatedAt).toLocaleDateString('en-GB')}</span>
                 </div>
-
-                {/* Delete Button */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();

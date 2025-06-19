@@ -165,12 +165,16 @@ const LandingPage = () => {
 
         <div
           ref={testimonialsRef}
-          className="flex overflow-x-auto snap-x snap-mandatory space-x-4 px-4 md:px-12 scrollbar-hide"
+          className="flex overflow-x-auto snap-x snap-mandatory space-x-6 px-4 md:px-12 scrollbar-hide"
         >
-          {testimonials.map((item) => (
+          {testimonials.map((item, index) => (
             <motion.div
               key={item.id}
-              className="min-w-[80%] sm:min-w-[300px] max-w-[400px] snap-start bg-white rounded-xl shadow-md p-6 flex-shrink-0 hover:shadow-lg transition"
+              className="snap-start flex-shrink-0 w-[90%] sm:w-[70%] md:w-[45%] lg:w-[30%] max-w-sm bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition transform"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.15 }}
             >
               <div className="flex items-center gap-3 mb-4">
                 <img
@@ -188,6 +192,7 @@ const LandingPage = () => {
           ))}
         </div>
       </section>
+
 
       <section className="px-4 py-20 bg-[#fffefc]">
         <h3 className="text-4xl font-bold text-center text-gray-900 mb-10">Why Choose InterviewPrep AI?</h3>
