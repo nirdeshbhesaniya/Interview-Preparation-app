@@ -7,7 +7,7 @@ import { API } from '../../utils/apiPaths';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronDown, Copy, Moon, Sun,
-  RefreshCcw, PlusCircle, Pin, Loader2, Bot
+  RefreshCcw, PlusCircle, Pin, Loader2, Bot,Star
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
