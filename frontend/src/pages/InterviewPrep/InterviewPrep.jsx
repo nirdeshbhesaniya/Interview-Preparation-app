@@ -105,7 +105,12 @@ const InterviewPrep = () => {
       localStorage.setItem('interviewPrepTheme', 'light');
     }
     axios.get(API.INTERVIEW.GET_ONE(sessionId))
-      .then((res) => setSession(res.data))
+      .then((res) => {
+        setSession(res.data);
+        // Load previously marked important Q&A
+        const stored = localStorage.getItem(`importantMap-${sessionId}`);
+        if (stored) setImportantMap(JSON.parse(stored));
+      })
       .catch(() => toast.error('Failed to load session'))
       .finally(() => setLoading(false));
   }, [sessionId, darkMode]);
@@ -163,11 +168,16 @@ const InterviewPrep = () => {
     }
   };
   const toggleImportant = (index) => {
-    setImportantMap((prev) => ({
-      ...prev,
-      [index]: !prev[index]
-    }));
+    setImportantMap((prev) => {
+      const updated = {
+        ...prev,
+        [index]: !prev[index]
+      };
+      localStorage.setItem(`importantMap-${sessionId}`, JSON.stringify(updated)); // store by sessionId
+      return updated;
+    });
   };
+
   const handleSummarize = async (index) => {
     const answerParts = session.qna[index].answerParts;
     const fullAnswer = answerParts.map(p => p.content).join('\n');
@@ -302,8 +312,8 @@ const InterviewPrep = () => {
                         <Button onClick={() => handlePin(i)} size="sm" variant="ghost" className="text-orange-600">
                           <Pin size={16} /> Pin
                         </Button>
-                        <Button onClick={() => toggleImportant(i)} size="sm" variant={importantMap[i] ? 'default' : 'ghost'} className="text-yellow-500">
-                          ⭐ {importantMap[i] ? 'Important' : 'Mark Important'}
+                        <Button onClick={() => toggleImportant(i)} size="sm" variant="ghost" className={importantMap[i] ? 'text-yellow-500' : 'text-gray-500'}>
+                          <Star size={16} /> {importantMap[i] ? 'Unmark' : 'Mark Important'}
                         </Button>
                         <Button
                           size="sm"
