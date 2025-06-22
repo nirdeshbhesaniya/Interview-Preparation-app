@@ -61,7 +61,7 @@ const Footer = () => {
       </div>
 
       <div className="text-center py-6 text-sm text-gray-500 border-t border-orange-100">
-        © {new Date().getFullYear()} InterviewPrep AI. All rights reserved.
+        © {new Date().getFullYear()} Interview AI. All rights reserved.
       </div>
     </footer>
   );
