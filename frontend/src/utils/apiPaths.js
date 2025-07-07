@@ -5,6 +5,9 @@ export const API_BASE_URL = 'https://interview-preparation-app.onrender.com/api'
 export const API = {
   REGISTER: `${API_BASE_URL}/auth/register`,
   LOGIN: `${API_BASE_URL}/auth/login`,
+  FORGOT_PASSWORD: `${API_BASE_URL}/auth/forgot-password`,
+  VERIFY_OTP: `${API_BASE_URL}/auth/verify-otp`,
+  RESET_PASSWORD: `${API_BASE_URL}/auth/reset-password`,
   INTERVIEW: {
     GET_ALL: `${API_BASE_URL}/interview`,
     CREATE: `${API_BASE_URL}/interview`,
@@ -13,5 +16,7 @@ export const API = {
     ASK_AI: `${API_BASE_URL}/interview/ask`, // ✅ ADD THIS
     GENERATE_MORE: (sessionId) => `${API_BASE_URL}/interview/generate-more/${sessionId}`, // ✅ IF you're adding more Qs
     SUMMARIZE: `${API_BASE_URL}/interview/summarize`, // ✅
+    VERIFY_DELETE_OTP: `${API_BASE_URL}/interview/verify-delete-otp`,
+    REQUEST_DELETE_OTP: `${API_BASE_URL}/interview/request-delete-otp`,
   },
 };

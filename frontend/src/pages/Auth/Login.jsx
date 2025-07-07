@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { UserContext } from '../../context/UserContext.jsx';
 
-const Login = ({ onSwitch }) => {
+const Login = ({ onSwitch, onForgotPassword }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
@@ -68,6 +68,17 @@ const Login = ({ onSwitch }) => {
             onClick={() => setShowPass((prev) => !prev)}
           >
             {showPass ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+          </button>
+        </div>
+        
+        {/* Forgot Password Link */}
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={onForgotPassword}
+            className="text-sm text-orange-600 hover:text-orange-700"
+          >
+            Forgot password?
           </button>
         </div>
 

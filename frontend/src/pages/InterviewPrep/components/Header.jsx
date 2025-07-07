@@ -67,7 +67,7 @@ const Header = ({ onLoginClick }) => {
             <div className="absolute right-0 mt-2 w-[90vw] max-w-[18rem] bg-white rounded-xl shadow-xl z-50 p-4 space-y-2 animate-fade-in">
               <div className="flex items-center gap-3">
                 <img
-                  src={user.photo || '/default-avatar.png'}
+                  src={user.photo || '/default-avatar.jpg'}
                   className="w-10 h-10 rounded-full border object-cover"
                   alt="Profile"
                 />

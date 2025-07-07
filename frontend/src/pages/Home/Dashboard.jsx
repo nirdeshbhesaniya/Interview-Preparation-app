@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { PlusCircle, Trash2, Bot, Search } from 'lucide-react';
 import CreateCardModal from '../../components/Cards/CreateCardForm';
 import axios from '../../utils/axiosInstance';
@@ -8,6 +8,7 @@ import { API } from '../../utils/apiPaths';
 import { Badge } from '@/components/ui/badge';
 import emptyStateImg from '../../assets/empty-state.jpg';
 import { Input } from '@/components/ui/input';
+import { toast } from 'react-hot-toast';
 
 export const Dashboard = () => {
   const [cards, setCards] = useState([]);
@@ -15,7 +16,11 @@ export const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [confirmModal, setConfirmModal] = useState(false);
+  const [selectedCardId, setSelectedCardId] = useState(null);
   const navigate = useNavigate();
+
+  const userEmail = JSON.parse(localStorage.getItem("user"))?.email;
 
   const gradients = [
     'from-[#fde2e4] to-[#fad2e1]',
@@ -57,12 +62,20 @@ export const Dashboard = () => {
     navigate(`/interview-prep/${sessionId}`);
   };
 
-  const handleDelete = async (sessionId) => {
+  const handleDeleteClick = (sessionId) => {
+    setSelectedCardId(sessionId);
+    setConfirmModal(true);
+  };
+
+  const confirmDelete = async () => {
     try {
-      await axios.delete(API.INTERVIEW.DELETE(sessionId));
-      await fetchCards();
-    } catch (err) {
-      console.error('Delete failed', err);
+      await axios.delete(API.INTERVIEW.DELETE(selectedCardId));
+      toast.success("Card deleted successfully");
+      setConfirmModal(false);
+      setSelectedCardId(null);
+      fetchCards();
+    } catch {
+      toast.error("Failed to delete card");
     }
   };
 
@@ -75,7 +88,6 @@ export const Dashboard = () => {
       });
       setFilteredCards(filtered);
     }, 300);
-
     return () => clearTimeout(delayDebounce);
   }, [searchTerm, cards]);
 
@@ -113,16 +125,9 @@ export const Dashboard = () => {
             </div>
             <div className="flex items-center justify-center gap-2 animate-pulse">
               <Bot className="w-7 h-7 text-orange-600 drop-shadow-md" />
-              <h1 className="text-xl md:text-2xl font-bold text-orange-600 tracking-wide">
-                Interview AI
-              </h1>
+              <h1 className="text-xl md:text-2xl font-bold text-orange-600 tracking-wide">Interview AI</h1>
             </div>
-            <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 mt-2 animate-fade-in-slow">
-              Setting up your smart dashboard, hold tight...
-            </p>
-            <div className="w-48 h-2 bg-orange-100 dark:bg-gray-800 rounded-full overflow-hidden">
-              <div className="h-full bg-orange-500 animate-loading-bar rounded-full"></div>
-            </div>
+            <p className="text-sm text-gray-600 dark:text-gray-300">Setting up your smart dashboard, hold tight...</p>
           </div>
         </div>
       ) : filteredCards.length === 0 ? (
@@ -140,6 +145,8 @@ export const Dashboard = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCards.map((card, index) => {
             const gradient = gradients[index % gradients.length];
+            const showDelete = card.creatorEmail === userEmail;
+
             return (
               <motion.div
                 key={card.sessionId}
@@ -178,28 +185,69 @@ export const Dashboard = () => {
                   <span>{card.qna?.length || 0} Q&A</span>
                   <span>{new Date(card.updatedAt).toLocaleDateString('en-GB')}</span>
                 </div>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete(card.sessionId);
-                  }}
-                  className="absolute top-2 right-2 bg-white dark:bg-zinc-800 rounded-full p-1.5 text-red-500 shadow hover:text-red-700 opacity-0 group-hover:opacity-100 transition"
-                >
-                  <Trash2 size={16} />
-                </button>
+
+                {showDelete && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteClick(card.sessionId);
+                    }}
+                    className="absolute top-2 right-2 bg-white dark:bg-zinc-800 rounded-full p-1.5 text-red-500 shadow hover:text-red-700 opacity-0 group-hover:opacity-100 transition"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                )}
               </motion.div>
             );
           })}
         </div>
       )}
 
-      {/* Modal */}
       {modalOpen && (
         <CreateCardModal
           onClose={() => setModalOpen(false)}
           onCreated={handleCreated}
         />
       )}
+
+      {/* Animated Delete Confirmation Popup */}
+      <AnimatePresence>
+        {confirmModal && (
+          <motion.div
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-xl max-w-sm w-full"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <h2 className="text-lg font-bold mb-2 text-orange-600">Confirm Delete</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                Are you sure you want to delete this interview card? This action cannot be undone.
+              </p>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setConfirmModal(false)}
+                  className="text-sm text-gray-600 hover:text-orange-700 hover:underline"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-1.5 rounded-2xl shadow text-sm"
+                >
+                  Delete
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

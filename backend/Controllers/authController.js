@@ -3,6 +3,8 @@ const User = require('../Models/User');
 const cloudinary = require('../utils/cloudinary');
 // const fs = require('fs'); // to delete local files if needed
 const streamifier = require('streamifier');
+const { sendOTPEmail } = require('../utils/emailService');
+const crypto = require('crypto');
 
 exports.registerUser = async (req, res) => {
   try {
@@ -84,6 +86,126 @@ exports.loginUser = async (req, res) => {
       // token
     });
   } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
+
+// Generate a 6-digit OTP
+const generateOTP = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
+// Request password reset with OTP
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    // console.log('Forgot password request for email:', email);
+
+    // Find user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Generate OTP
+    const otp = generateOTP();
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    // Save OTP to user
+    user.otp = otp;
+    user.otpExpires = otpExpires;
+    await user.save();
+
+    // Send OTP email
+    // console.log('Sending OTP email to:', email);
+    const emailResult = await sendOTPEmail(email, otp);
+    
+    if (!emailResult.success) {
+      console.error('Email sending failed:', emailResult);
+      // Update user to clear OTP since email failed
+      user.otp = undefined;
+      user.otpExpires = undefined;
+      await user.save();
+      
+      return res.status(500).json({ 
+        message: 'Failed to send OTP email', 
+        error: emailResult.error,
+        details: emailResult.details || 'No additional details available'
+      });
+    }
+
+    // console.log('OTP email sent successfully');
+    res.status(200).json({ message: 'OTP sent to your email' });
+  } catch (err) {
+    console.error('Forgot password error:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
+
+// Verify OTP and allow password reset
+exports.verifyOTP = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    // Find user by email
+    const user = await User.findOne({ 
+      email, 
+      otp, 
+      otpExpires: { $gt: Date.now() } 
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired OTP' });
+    }
+
+    // Generate reset token
+    const resetToken = crypto.randomBytes(20).toString('hex');
+    const resetExpires = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
+
+    // Save reset token
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = resetExpires;
+    await user.save();
+
+    res.status(200).json({ 
+      message: 'OTP verified successfully', 
+      resetToken 
+    });
+  } catch (err) {
+    console.error('OTP verification error:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
+
+// Reset password with token
+exports.resetPassword = async (req, res) => {
+  try {
+    const { resetToken, newPassword } = req.body;
+
+    // Find user by reset token
+    const user = await User.findOne({ 
+      resetPasswordToken: resetToken,
+      resetPasswordExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired reset token' });
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update password and clear reset fields
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    user.otp = undefined;
+    user.otpExpires = undefined;
+    await user.save();
+
+    res.status(200).json({ message: 'Password reset successful' });
+  } catch (err) {
+    console.error('Password reset error:', err);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };

@@ -3,6 +3,7 @@ const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 const Interview = require('../Models/Interview');
 const { generateInterviewQuestions } = require('../utils/gemini');
+const { sendOTPEmail } = require('../utils/emailService');
 
 // GET all cards
 router.get('/', async (req, res) => {
@@ -25,11 +26,21 @@ router.get('/:sessionId', async (req, res) => {
   }
 });
 
+// const requireAuth = (req, res, next) => {
+//   const user = User.email; // or get from Clerk, JWT, etc.
+//   if (!user || !user.email) {
+//     return res.status(401).json({ message: 'Unauthorized' });
+//   }
+//   next();
+// };
+
 // CREATE card
 router.post('/', async (req, res) => {
-  const { title, tag, initials, experience, desc, color } = req.body;
+  const { title, tag, initials, experience, desc, color, creatorEmail } = req.body;
+  // const creatorEmail = req.user?.email; // <- Get from auth middleware
+  console.log('Creating interview card with:', creatorEmail);
 
-  if (!title || !tag || !initials || !experience || !desc) {
+  if (!title || !tag || !initials || !experience || !desc || !creatorEmail) {
     return res.status(400).json({ message: 'All fields are required' });
   }
 
@@ -37,7 +48,6 @@ router.post('/', async (req, res) => {
     const sessionId = uuidv4();
     const aiQuestions = await generateInterviewQuestions(title, tag, experience, desc);
 
-    // Validate and clean answerParts
     const qna = aiQuestions.map((q) => ({
       question: q.question,
       answerParts: Array.isArray(q.answerParts)
@@ -53,6 +63,7 @@ router.post('/', async (req, res) => {
       experience,
       desc,
       color,
+      creatorEmail: creatorEmail,
       qna
     });
 
@@ -63,6 +74,7 @@ router.post('/', async (req, res) => {
     res.status(500).json({ message: 'Failed to create card' });
   }
 });
+
 
 // DELETE card
 router.delete('/:sessionId', async (req, res) => {
@@ -129,6 +141,7 @@ router.patch('/edit/:sessionId/:index', async (req, res) => {
 
 // POST /interview/generate-more/:sessionId
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const User = require('../Models/User');
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // Import Mongoose model
@@ -271,6 +284,45 @@ router.post('/summarize', async (req, res) => {
     console.error('Summarize endpoint failed:', err);
     res.status(500).json({ message: 'Failed to generate summary' });
   }
+});
+
+//request delete OTP send 
+router.post('/request-delete-otp', async (req, res) => {
+  const { sessionId } = req.body;
+  const card = await Interview.findOne({ sessionId });
+  if (!card) return res.status(404).json({ message: 'Card not found' });
+
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  card.deleteOTP = otp;
+  await card.save();
+
+  // Send email using your email utility
+  await sendOTPEmail(card.creatorEmail, otp); // implement sendOTPEmail
+
+  res.status(200).json({ message: 'OTP sent to creator email' });
+});
+
+router.post('/verify-delete-otp', async (req, res) => {
+  const { sessionId, otp } = req.body;
+  const card = await Interview.findOne({ sessionId });
+  if (!card) return res.status(404).json({ message: 'Card not found' });
+
+  if (card.deleteOTP !== otp) return res.status(400).json({ message: 'Invalid OTP' });
+
+  await Interview.deleteOne({ sessionId });
+  res.status(200).json({ message: 'Card deleted successfully' });
+});
+
+//Verify delete OTP
+router.post('/verify-delete-otp', async (req, res) => {
+  const { sessionId, otp } = req.body;
+  const card = await Interview.findOne({ sessionId });
+  if (!card) return res.status(404).json({ message: 'Card not found' });
+
+  if (card.deleteOTP !== otp) return res.status(400).json({ message: 'Invalid OTP' });
+
+  await Interview.deleteOne({ sessionId });
+  res.status(200).json({ message: 'Card deleted successfully' });
 });
 
 

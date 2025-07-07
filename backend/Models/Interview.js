@@ -18,7 +18,9 @@ const InterviewSchema = new mongoose.Schema({
       question: String,
       answerParts: [AnswerPartSchema]
     }
-  ]
+  ],
+  creatorEmail: { type: String, required: true }, // 👈 Add this
+  deleteOTP: { type: String }, // 👈 Temporary OTP for deletion
 }, { timestamps: true });
 
 module.exports = mongoose.model('Interview', InterviewSchema);

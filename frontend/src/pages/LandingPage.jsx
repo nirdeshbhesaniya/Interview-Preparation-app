@@ -8,6 +8,7 @@ import Footer from '../pages/InterviewPrep/components/Footer';
 import AuthModal from '../pages/Auth/AuthModel';
 import SignUp from '../pages/Auth/SignUp';
 import Login from '../pages/Auth/Login';
+import ForgotPassword from '../pages/Auth/ForgotPassword';
 import { APP_FEATURES } from '../utils/data';
 import { UserContext } from '../context/UserContext.jsx';
 
@@ -53,6 +54,7 @@ const faqs = [
 const LandingPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [loading, setLoading] = useState(true);
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
@@ -60,7 +62,24 @@ const LandingPage = () => {
 
   const openModal = () => setShowModal(true);
   const closeModal = () => setShowModal(false);
-  const toggleAuth = () => setIsLogin((prev) => !prev);
+  const toggleAuth = () => {
+    setIsLogin((prev) => !prev);
+    setIsForgotPassword(false);
+  };
+  
+  const showForgotPassword = () => {
+    setIsForgotPassword(true);
+  };
+  
+  const navigateToAuth = (type) => {
+    if (type === 'login') {
+      setIsLogin(true);
+      setIsForgotPassword(false);
+    } else if (type === 'register') {
+      setIsLogin(false);
+      setIsForgotPassword(false);
+    }
+  };
 
   const handleGetStarted = () => {
     if (user || localStorage.getItem('user')) {
@@ -236,7 +255,13 @@ const LandingPage = () => {
       </section>
 
       <AuthModal show={showModal} onClose={closeModal}>
-        {isLogin ? <Login onSwitch={toggleAuth} /> : <SignUp onSwitch={toggleAuth} />}
+        {isForgotPassword ? (
+          <ForgotPassword onSwitch={toggleAuth} onNavigate={navigateToAuth} />
+        ) : isLogin ? (
+          <Login onSwitch={toggleAuth} onForgotPassword={showForgotPassword} />
+        ) : (
+          <SignUp onSwitch={toggleAuth} />
+        )}
       </AuthModal>
 
       <Footer />

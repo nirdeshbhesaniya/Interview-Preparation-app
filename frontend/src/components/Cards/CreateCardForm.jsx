@@ -12,6 +12,7 @@ const CreateCardModal = ({ onClose, onCreated }) => {
     initials: '',
     experience: '',
     desc: '',
+    creatorEmail: '',
     color: 'from-green-100 to-green-50',
   });
   const [loading, setLoading] = useState(false);
@@ -93,6 +94,15 @@ const CreateCardModal = ({ onClose, onCreated }) => {
               type="text"
               placeholder="Experience (e.g., 2 Years)"
               value={form.experience}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:outline-none"
+            />
+            <input
+              name="creatorEmail"
+              type="text"
+              placeholder="example@gmail.com"
+              value={form.creatorEmail}
               onChange={handleChange}
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:outline-none"
