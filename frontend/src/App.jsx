@@ -10,6 +10,7 @@ import InterviewPrep from './pages/InterviewPrep/InterviewPrep';
 
 import MainLayout from './components/layouts/MainLayout';
 import ProtectedRoute from './components/layouts/ProtectedRoute';
+import CodeExecutionPlatform from './pages/Home/Codebase';
 
 const App = () => {
   return (
@@ -27,6 +28,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/codebase"
+            element={
+              <ProtectedRoute>
+                <CodeExecutionPlatform/>
               </ProtectedRoute>
             }
           />

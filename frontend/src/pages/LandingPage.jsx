@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { BrainCircuit, Bot } from 'lucide-react';
+import { BrainCircuit, Bot, FileCode } from 'lucide-react';
 
 import Header from '../pages/InterviewPrep/components/Header';
 import Footer from '../pages/InterviewPrep/components/Footer';
@@ -66,11 +66,11 @@ const LandingPage = () => {
     setIsLogin((prev) => !prev);
     setIsForgotPassword(false);
   };
-  
+
   const showForgotPassword = () => {
     setIsForgotPassword(true);
   };
-  
+
   const navigateToAuth = (type) => {
     if (type === 'login') {
       setIsLogin(true);
@@ -84,6 +84,14 @@ const LandingPage = () => {
   const handleGetStarted = () => {
     if (user || localStorage.getItem('user')) {
       navigate('/dashboard');
+    } else {
+      openModal();
+    }
+  };
+
+  const handleGoCodebase = () => {
+    if (user || localStorage.getItem('user')) {
+      navigate('/codebase');
     } else {
       openModal();
     }
@@ -141,26 +149,72 @@ const LandingPage = () => {
     <div className="font-[Urbanist] bg-[#fff7ee] min-h-screen">
       <Header onLoginClick={openModal} />
 
+
       <section className="relative text-center min-h-screen flex flex-col items-center justify-center px-6 overflow-hidden">
-        <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover z-0 opacity-40">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover z-0 opacity-40"
+        >
           <source src="/assets/hero.mp4" type="video/mp4" />
         </video>
+
         <div className="relative z-10 max-w-2xl text-white">
+          {/* AI Badge */}
           <span className="inline-flex items-center gap-2 mb-3 px-4 py-1 text-sm font-medium text-orange-500 border border-orange-300 rounded-full bg-white/20 backdrop-blur-md shadow-md">
             <BrainCircuit className="w-4 h-4 text-orange-500" /> AI Powered
           </span>
-          <motion.h2 initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="text-4xl md:text-6xl font-bold text-white drop-shadow-lg">
+
+          {/* Hero Title */}
+          <motion.h2
+            initial={{ opacity: 0, y: -30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-4xl md:text-6xl font-bold text-white drop-shadow-lg"
+          >
             Ace Interviews with <br className="hidden md:block" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-yellow-300">AI-Powered</span> Learning
           </motion.h2>
-          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mt-6 text-lg text-white/90 leading-relaxed">
+
+          {/* Description */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mt-6 text-lg text-white/90 leading-relaxed"
+          >
             Get role-specific questions, expand answers when needed, dive deeper into concepts.
           </motion.p>
-          <motion.button whileHover={{ scale: 1.05 }} className="mt-8 px-8 py-3 bg-orange-500 text-white rounded-full font-medium hover:bg-orange-600 transition shadow-lg" onClick={handleGetStarted}>
-            Get Started
-          </motion.button>
+
+          {/* Buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4"
+          >
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              className="w-full sm:w-auto px-8 py-3 bg-orange-500 text-white rounded-full font-medium hover:bg-orange-600 transition shadow-lg"
+              onClick={handleGetStarted}
+            >
+              Get Started
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              className="w-full sm:w-auto px-8 py-3 bg-blue-600 text-white rounded-full font-medium hover:bg-blue-700 transition shadow-lg flex items-center justify-center gap-2"
+              onClick={handleGoCodebase}
+            >
+              <FileCode className="w-5 h-5" />
+              Explore Codebase
+            </motion.button>
+          </motion.div>
         </div>
       </section>
+
 
       <section className="px-4 md:px-12 py-20 bg-[#fffefc]">
         <h3 className="text-4xl font-bold text-center text-gray-900 mb-10">App Features</h3>

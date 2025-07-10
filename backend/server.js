@@ -16,6 +16,8 @@ app.use('/uploads', express.static('uploads')); // Serve images
 app.use('/api/auth', authRoutes);
 const interviewRoutes = require('./Routes/interview');
 app.use('/api/interview', interviewRoutes);
+const compileRoute = require('./Routes/compile');
+app.use('/api/compile', compileRoute);
 
 
 // Connect to DB and start server

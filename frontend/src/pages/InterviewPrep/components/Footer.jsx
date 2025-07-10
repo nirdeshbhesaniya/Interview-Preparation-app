@@ -20,7 +20,7 @@ const socialLinks = [
   },
   {
     icon: <Globe className="w-5 h-5" />,
-    link: 'https://nirdesh-portfolio.netlify.app/',
+    link: 'https://nirdesh-portfolio.onrender.com/',
     label: 'Portfolio'
   }
 ];
