@@ -12,55 +12,66 @@ import MainLayout from './components/layouts/MainLayout';
 import ProtectedRoute from './components/layouts/ProtectedRoute';
 import CodeExecutionPlatform from './pages/Home/Codebase';
 
+// Chatbot Components
+import ChatbotProvider from './context/ChatBotContext';
+import Chatbot from './components/Chatbot';
+
 const App = () => {
   return (
-    <Router>
-      <Routes>
-        {/* Public routes (no header) */}
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<SignUp />} />
+    <ChatbotProvider>
+      <Router>
+        <div className="min-h-screen bg-background text-foreground">
+          <Routes>
+            {/* Public routes (no header) */}
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<SignUp />} />
 
-        {/* Routes with header */}
-        <Route element={<MainLayout />}>
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/codebase"
-            element={
-              <ProtectedRoute>
-                <CodeExecutionPlatform/>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/interview-prep/:sessionId"
-            element={
-              <ProtectedRoute>
-                <InterviewPrep />
-              </ProtectedRoute>
-            }
-          />
-        </Route>
-      </Routes>
+            {/* Routes with header */}
+            <Route element={<MainLayout />}>
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/codebase"
+                element={
+                  <ProtectedRoute>
+                    <CodeExecutionPlatform />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/interview-prep/:sessionId"
+                element={
+                  <ProtectedRoute>
+                    <InterviewPrep />
+                  </ProtectedRoute>
+                }
+              />
+            </Route>
+          </Routes>
 
-      <Toaster
-        position="top-right"
-        reverseOrder={false}
-        toastOptions={{
-          style: {
-            background: '#363636',
-            color: '#fff',
-          },
-        }}
-      />
-    </Router>
+          {/* Global Chatbot - Available on all routes */}
+          <Chatbot />
+
+          <Toaster
+            position="top-center"
+            toastOptions={{
+              duration: 3000,
+              style: {
+                background: '#363636',
+                color: '#fff',
+              },
+            }}
+          />
+        </div>
+      </Router>
+    </ChatbotProvider>
   );
 };
 

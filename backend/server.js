@@ -13,11 +13,15 @@ const PORT = process.env.PORT || 5000; // ✅ Define PORT here
 app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static('uploads')); // Serve images
+
+// Routes
 app.use('/api/auth', authRoutes);
 const interviewRoutes = require('./Routes/interview');
 app.use('/api/interview', interviewRoutes);
 const compileRoute = require('./Routes/compile');
-app.use('/api/compile', compileRoute);
+app.use('/api', compileRoute);
+const chatbotRoutes = require('./Routes/chatbot');
+app.use('/api/chatbot', chatbotRoutes);
 
 
 // Connect to DB and start server

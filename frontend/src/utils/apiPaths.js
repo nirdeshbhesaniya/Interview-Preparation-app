@@ -19,7 +19,10 @@ export const API = {
     VERIFY_DELETE_OTP: `${API_BASE_URL}/interview/verify-delete-otp`,
     REQUEST_DELETE_OTP: `${API_BASE_URL}/interview/request-delete-otp`,
   },
-    CODE: {
+  CODE: {
     COMPILE: `${API_BASE_URL}/compile`
+  },
+  CHATBOT: {
+    ASK: `${API_BASE_URL}/chatbot/ask`
   }
 };

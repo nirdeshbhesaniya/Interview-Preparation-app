@@ -107,4 +107,47 @@ Strict formatting: 1 question per section.
   }
 }
 
-module.exports = { generateInterviewQuestions };
+// Chat with AI function
+async function chatWithAI(userMessage, context = 'general') {
+  const model = genAI.getGenerativeModel({
+    model: 'models/gemini-1.5-flash',
+  });
+
+  let systemPrompt = '';
+
+  switch (context) {
+    case 'interview_preparation':
+      systemPrompt = `You are an expert Interview AI Assistant specializing in:
+- Technical interview preparation (coding, algorithms, system design)
+- Behavioral interview guidance (STAR method, leadership examples)
+- Resume and profile optimization
+- Salary negotiation strategies
+- Industry-specific interview tips
+- Mock interview practice
+
+Provide detailed, actionable advice with examples when appropriate. Use markdown formatting for better readability including code blocks, bullet points, and emphasis.`;
+      break;
+    default:
+      systemPrompt = 'You are a helpful AI assistant. Provide clear and concise responses using markdown formatting.';
+  }
+
+  const prompt = `${systemPrompt}
+
+User Question: ${userMessage}
+
+Please provide a comprehensive and helpful response.`;
+
+  try {
+    const result = await model.generateContent(prompt);
+    const response = result.response.text();
+    return response;
+  } catch (error) {
+    console.error('Gemini chat error:', error);
+    throw new Error('Failed to generate AI response');
+  }
+}
+
+module.exports = {
+  generateInterviewQuestions,
+  chatWithAI
+};
