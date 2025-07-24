@@ -38,8 +38,11 @@ A powerful MERN-based AI-powered interview preparation platform with rich UI, in
 
 ---
 
-## Environment Variable 
+## Environment Variables
 
+### Backend (.env file in /backend directory)
+
+```env
 # 🔌 Server Configuration
 PORT=5000  # The port your Express server will run on
 
@@ -54,20 +57,90 @@ CLOUDINARY_NAME=your_cloudinary_cloud_name  # From Cloudinary dashboard
 CLOUDINARY_API_KEY=your_cloudinary_api_key
 CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 
+# 💻 Judge0 API for Code Compilation (Required for Codebase feature)
+RAPIDAPI_KEY=your_rapidapi_key_here  # Get this from https://rapidapi.com/judge0-official/api/judge0-ce
+```
 
+### API Keys Setup Guide
+
+1. **Judge0 API (For Code Compilation):**
+   - Visit [RapidAPI Judge0](https://rapidapi.com/judge0-official/api/judge0-ce)
+   - Subscribe to the free plan (500 requests/month)
+   - Copy your RapidAPI key and add it to your `.env` file
+
+2. **Google Gemini API:**
+   - Visit [Google AI Studio](https://aistudio.google.com/app/apikey)
+   - Create a new API key
+   - Add it to your `.env` file
+
+3. **MongoDB:**
+   - Create a free cluster at [MongoDB Atlas](https://cloud.mongodb.com/)
+   - Get your connection string and add it to your `.env` file
+
+4. **Cloudinary (Optional):**
+   - Create account at [Cloudinary](https://cloudinary.com/)
+   - Get your credentials from the dashboard
 
 ---
 
 ## 🛠️ Local Development
 
-### 1. Clone the Repo
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/nirdeshbhesaniya/Interview-Preparation-app.git
-cd interview-prep-app
+cd Interview-Preparation-app
+```
+
+### 2. Backend Setup
+
+```bash
 cd backend
 npm install
-cd interview-prep-app
+
+# Create .env file with required environment variables
+cp .env.example .env
+# Edit .env file with your actual API keys and database URL
+
+# Start the backend server
+npm start
+```
+
+### 3. Frontend Setup
+
+```bash
 cd frontend
 npm install
-npm run dev 
+
+# Start the development server
+npm run dev
+```
+
+### 4. Access the Application
+
+- **Frontend:** <http://localhost:5173>
+- **Backend:** <http://localhost:5000>
+
+### 5. Test Code Compilation Feature
+
+1. Make sure your backend `.env` file has the `RAPIDAPI_KEY` for Judge0
+2. Navigate to the Codebase section in the app
+3. Write some code and click "Run Code" to test the compilation feature
+
+---
+
+## 🔧 Troubleshooting
+
+### Code Compilation Issues
+
+If you're getting 404 errors for code compilation:
+
+1. **Check Backend Server:** Make sure the backend is running on port 5000
+2. **Verify API Key:** Ensure you have added the `RAPIDAPI_KEY` to your `.env` file
+3. **Check Route:** The compilation endpoint should be available at `/api/compile`
+
+### Common Errors
+
+- **"Backend server not available":** Start the backend server with `npm start`
+- **"Code execution service unavailable":** Add your RapidAPI key to the `.env` file
+- **"Internal server error":** Check your API key validity and internet connection

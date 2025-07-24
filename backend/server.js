@@ -19,9 +19,11 @@ app.use('/api/auth', authRoutes);
 const interviewRoutes = require('./Routes/interview');
 app.use('/api/interview', interviewRoutes);
 const compileRoute = require('./Routes/compile');
-app.use('/api', compileRoute);
+app.use('/api/compile', compileRoute);
 const chatbotRoutes = require('./Routes/chatbot');
 app.use('/api/chatbot', chatbotRoutes);
+const supportRoutes = require('./Routes/support');
+app.use('/api/support', supportRoutes);
 
 
 // Connect to DB and start server

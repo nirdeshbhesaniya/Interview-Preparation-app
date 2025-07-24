@@ -7,6 +7,7 @@ import SignUp from './pages/Auth/SignUp';
 import LandingPage from './pages/LandingPage';
 import { Dashboard } from './pages/Home/Dashboard';
 import InterviewPrep from './pages/InterviewPrep/InterviewPrep';
+import ContactSupportPage from './pages/ContactSupportPage';
 
 import MainLayout from './components/layouts/MainLayout';
 import ProtectedRoute from './components/layouts/ProtectedRoute';
@@ -15,6 +16,7 @@ import CodeExecutionPlatform from './pages/Home/Codebase';
 // Chatbot Components
 import ChatbotProvider from './context/ChatBotContext';
 import Chatbot from './components/Chatbot';
+import FloatingHelpButton from './components/FloatingHelpButton';
 
 const App = () => {
   return (
@@ -26,6 +28,7 @@ const App = () => {
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
+            <Route path="/support" element={<ContactSupportPage />} />
 
             {/* Routes with header */}
             <Route element={<MainLayout />}>
@@ -58,6 +61,9 @@ const App = () => {
 
           {/* Global Chatbot - Available on all routes */}
           <Chatbot />
+
+          {/* Global Help Button - Available on all routes */}
+          <FloatingHelpButton />
 
           <Toaster
             position="top-center"

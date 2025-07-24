@@ -24,5 +24,9 @@ export const API = {
   },
   CHATBOT: {
     ASK: `${API_BASE_URL}/chatbot/ask`
+  },
+  SUPPORT: {
+    CONTACT: `${API_BASE_URL}/support/contact`,
+    STATS: `${API_BASE_URL}/support/stats`
   }
 };

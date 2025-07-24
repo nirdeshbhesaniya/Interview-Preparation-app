@@ -24,6 +24,7 @@ import Login from '../pages/Auth/Login';
 import ForgotPassword from '../pages/Auth/ForgotPassword';
 import { APP_FEATURES } from '../utils/data';
 import { UserContext } from '../context/UserContext.jsx';
+import HeroSection from './InterviewPrep/components/HeroSection';
 
 const testimonials = [
   {
@@ -162,211 +163,9 @@ const LandingPage = () => {
     <div className="font-[Urbanist] bg-gradient-to-br from-orange-50 via-white to-blue-50 min-h-screen">
       <Header onLoginClick={openModal} />
 
-      {/* Hero Section with Enhanced Design */}
-      <section className="relative text-center min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 overflow-hidden">
-        {/* Background Video with Overlay */}
-        <div className="absolute inset-0 z-0">
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover opacity-30"
-          >
-            <source src="/assets/hero.mp4" type="video/mp4" />
-          </video>
-          <div className="absolute inset-0 bg-gradient-to-br from-orange-900/40 via-blue-900/30 to-purple-900/40"></div>
-        </div>
+      {/* Hero Section with Enhanced Mobile Design */}
 
-        {/* Floating Elements */}
-        <motion.div
-          className="absolute top-20 left-10 w-20 h-20 bg-orange-400/20 rounded-full blur-xl"
-          animate={{
-            x: [0, 30, 0],
-            y: [0, -20, 0],
-            scale: [1, 1.2, 1]
-          }}
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="absolute bottom-40 right-20 w-32 h-32 bg-blue-400/20 rounded-full blur-xl"
-          animate={{
-            x: [0, -40, 0],
-            y: [0, 30, 0],
-            scale: [1, 0.8, 1]
-          }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        />
-
-        <div className="relative z-10 max-w-5xl mx-auto text-white">
-          {/* AI Badge with Animation */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6 }}
-            className="flex justify-center mb-6"
-          >
-            <span className="inline-flex items-center gap-3 px-6 py-3 text-sm font-medium text-orange-400 border border-orange-300/50 rounded-full bg-white/10 backdrop-blur-lg shadow-lg hover:bg-white/20 transition-all duration-300">
-              <BrainCircuit className="w-5 h-5 text-orange-400 animate-pulse" />
-              <span className="hidden sm:inline">AI Powered Interview Assistant</span>
-              <span className="sm:hidden">AI Powered</span>
-              <Sparkles className="w-4 h-4 text-yellow-400" />
-            </span>
-          </motion.div>
-
-          {/* Hero Title with Staggered Animation */}
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="space-y-4"
-          >
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white drop-shadow-2xl leading-tight">
-              Ace Interviews with{' '}
-              <br className="hidden sm:block" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-yellow-300 to-amber-400 animate-gradient-x">
-                AI-Powered
-              </span>{' '}
-              Learning
-            </h1>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-              className="flex justify-center"
-            >
-              <div className="flex items-center gap-2 text-yellow-300">
-                {[...Array(5)].map((_, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, rotate: -180 }}
-                    animate={{ opacity: 1, rotate: 0 }}
-                    transition={{ duration: 0.5, delay: 0.7 + i * 0.1 }}
-                  >
-                    <Star className="w-5 h-5 fill-current" />
-                  </motion.div>
-                ))}
-                <span className="ml-2 text-white/90 text-sm font-medium">
-                  Trusted by 10,000+ developers
-                </span>
-              </div>
-            </motion.div>
-          </motion.div>
-
-          {/* Description with Better Typography */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.8 }}
-            className="mt-8 space-y-4"
-          >
-            <p className="text-lg sm:text-xl lg:text-2xl text-white/90 leading-relaxed max-w-3xl mx-auto">
-              Get role-specific questions, expand answers when needed, and dive deeper into concepts with our intelligent AI assistant.
-            </p>
-
-            {/* Feature Highlights */}
-            <div className="flex flex-wrap justify-center gap-4 mt-6">
-              {[
-                { icon: CheckCircle, text: "Personalized Questions" },
-                { icon: Zap, text: "Instant Feedback" },
-                { icon: Trophy, text: "Track Progress" }
-              ].map((feature, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.8 + index * 0.1 }}
-                  className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20"
-                >
-                  <feature.icon className="w-4 h-4 text-green-400" />
-                  <span className="text-sm text-white/90">{feature.text}</span>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Enhanced CTA Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1, duration: 0.8 }}
-            className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6"
-          >
-            <motion.button
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              className="group relative w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-2xl font-semibold hover:from-orange-600 hover:to-red-600 transition-all duration-300 shadow-xl hover:shadow-2xl overflow-hidden"
-              onClick={handleGetStarted}
-            >
-              <div className="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-              <div className="relative flex items-center gap-2">
-                <span>Get Started Free</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </motion.button>
-
-            <motion.button
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              className="group w-full sm:w-auto px-8 py-4 bg-white/10 text-white border-2 border-white/30 rounded-2xl font-semibold hover:bg-white/20 backdrop-blur-lg transition-all duration-300 shadow-xl hover:shadow-2xl"
-              onClick={handleGoCodebase}
-            >
-              <div className="flex items-center justify-center gap-2">
-                <FileCode className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                <span>Explore Codebase</span>
-              </div>
-            </motion.button>
-          </motion.div>
-
-          {/* Stats Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.2, duration: 0.8 }}
-            className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto"
-          >
-            {[
-              { number: "10K+", label: "Users", icon: Users },
-              { number: "50K+", label: "Questions", icon: FileCode },
-              { number: "95%", label: "Success Rate", icon: Trophy },
-              { number: "24/7", label: "AI Support", icon: Bot }
-            ].map((stat, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 1.4 + index * 0.1 }}
-                className="text-center p-4 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20"
-              >
-                <stat.icon className="w-8 h-8 mx-auto mb-2 text-orange-400" />
-                <div className="text-2xl font-bold text-white">{stat.number}</div>
-                <div className="text-sm text-white/70">{stat.label}</div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-
-        {/* Scroll Indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 2 }}
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
-        >
-          <motion.div
-            animate={{ y: [0, 10, 0] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="w-6 h-10 border-2 border-white/40 rounded-full flex justify-center"
-          >
-            <motion.div
-              animate={{ y: [0, 12, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="w-1 h-3 bg-white/60 rounded-full mt-2"
-            />
-          </motion.div>
-        </motion.div>
-      </section>
+      <HeroSection />
 
 
       {/* Enhanced Features Section */}
@@ -780,6 +579,7 @@ const LandingPage = () => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/support')}
               className="px-8 py-3 bg-white text-orange-600 rounded-xl font-semibold hover:bg-gray-50 transition-colors shadow-lg"
             >
               Contact Support
