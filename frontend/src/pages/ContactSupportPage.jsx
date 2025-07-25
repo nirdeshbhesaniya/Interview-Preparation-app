@@ -41,7 +41,7 @@ const ContactSupportPage = () => {
                         Still have questions?
                     </h2>
                     <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                        Our support team is here to help you get the most out of InterviewPrep AI.
+                        Our support team is here to help you get the most out of Interview AI.
                         We're committed to providing you with the best experience possible.
                     </p>
                 </motion.div>
@@ -114,7 +114,7 @@ const ContactSupportPage = () => {
                             </div>
                             <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Video Tutorials</h4>
                             <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                Watch step-by-step video guides to master InterviewPrep AI
+                                Watch step-by-step video guides to master Interview AI
                             </p>
                         </div>
                     </div>

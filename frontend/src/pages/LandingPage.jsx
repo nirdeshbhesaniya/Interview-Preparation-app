@@ -52,8 +52,8 @@ const testimonials = [
 
 const faqs = [
   {
-    question: 'What is InterviewPrep AI?',
-    answer: 'InterviewPrep AI is an intelligent platform that helps you prepare for interviews using AI-generated questions and answers tailored to your role.'
+    question: 'What is Interview AI?',
+    answer: 'Interview AI is an intelligent platform that helps you prepare for interviews using AI-generated questions and answers tailored to your role.'
   },
   {
     question: 'Can I customize my interview topics?',
@@ -421,7 +421,7 @@ const LandingPage = () => {
             className="text-center mb-16"
           >
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-              Why Choose <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500">InterviewPrep AI?</span>
+              Why Choose <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500">Interview AI?</span>
             </h2>
             <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
               Experience the future of interview preparation with our cutting-edge AI technology
@@ -534,7 +534,7 @@ const LandingPage = () => {
               Frequently Asked <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500">Questions</span>
             </h2>
             <p className="text-lg sm:text-xl text-gray-600">
-              Everything you need to know about InterviewPrep AI
+              Everything you need to know about Interview AI
             </p>
           </motion.div>
 
@@ -574,7 +574,7 @@ const LandingPage = () => {
           >
             <h3 className="text-2xl font-bold mb-4">Still have questions?</h3>
             <p className="text-orange-100 mb-6">
-              Our support team is here to help you get the most out of InterviewPrep AI
+              Our support team is here to help you get the most out of Interview AI
             </p>
             <motion.button
               whileHover={{ scale: 1.05 }}

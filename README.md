@@ -1,4 +1,4 @@
-# 🧠 InterviewPrep AI – Full-Stack AI Interview Practice App
+# 🧠 Interview AI – Full-Stack AI Interview Practice App
 
 A powerful MERN-based AI-powered interview preparation platform with rich UI, interactive features, and smart Gemini API integrations to generate, regenerate, summarize, pin, and mark technical Q&A.
 

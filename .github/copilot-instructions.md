@@ -1,4 +1,4 @@
-# InterviewPrep AI - Copilot Instructions
+# Interview AI - Copilot Instructions
 
 ## Architecture Overview
 

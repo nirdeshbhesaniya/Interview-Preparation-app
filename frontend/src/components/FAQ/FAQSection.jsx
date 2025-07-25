@@ -7,7 +7,7 @@ const FAQSection = () => {
 
     const faqs = [
         {
-            question: "How do I get started with InterviewPrep AI?",
+            question: "How do I get started with Interview AI?",
             answer: "Getting started is easy! Simply sign up for an account, choose your interview category, and start generating AI-powered practice questions. Our platform will create personalized interview questions based on your experience level and field."
         },
         {
@@ -60,7 +60,7 @@ const FAQSection = () => {
                     Frequently Asked Questions
                 </h3>
                 <p className="text-gray-600 dark:text-gray-300">
-                    Find quick answers to common questions about InterviewPrep AI.
+                    Find quick answers to common questions about Interview AI.
                 </p>
             </div>
 

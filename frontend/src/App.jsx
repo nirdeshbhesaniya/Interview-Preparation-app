@@ -56,6 +56,14 @@ const App = () => {
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/interview-prep/:sessionId"
+                element={
+                  <ProtectedRoute>
+                    <InterviewPrep />
+                  </ProtectedRoute>
+                }
+              />
             </Route>
           </Routes>
 
