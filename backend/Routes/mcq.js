@@ -60,43 +60,63 @@ Generate all ${numberOfQuestions} questions in the exact format specified above 
 // Parse AI response into structured MCQ format
 function parseMCQResponse(response, numberOfQuestions = 30) {
     const questions = [];
-    const questionBlocks = response.split(/\d+\.\s/).filter(block => block.trim());
+    const questionBlocks = response.split(/(?=\d+\.\s)/).filter(block => block.trim());
 
     questionBlocks.forEach((block, index) => {
-        const lines = block.trim().split('\n').map(line => line.trim()).filter(line => line);
+        if (!block.trim()) return;
 
-        if (lines.length >= 6) {
-            const questionText = lines[0].replace(/\?$/, '') + '?';
-            const optionsObj = {};
-            const optionsArray = [];
-            let correctAnswer = '';
-            let explanation = '';
+        // Preserve code blocks by not splitting them
+        const questionMatch = block.match(/^\d+\.\s(.+?)(?=\n[A-D]\)|$)/s);
+        if (!questionMatch) return;
 
-            lines.forEach(line => {
-                if (line.match(/^[A-D]\)/)) {
-                    const letter = line.charAt(0);
-                    const text = line.substring(3).trim();
+        let questionText = questionMatch[1].trim();
+        if (!questionText.endsWith('?')) {
+            questionText += '?';
+        }
+
+        const optionsObj = {};
+        const optionsArray = [];
+        let correctAnswer = '';
+        let explanation = '';
+
+        // Extract options more carefully to preserve formatting
+        const optionMatches = block.match(/^([A-D]\).+?)(?=\n[A-D]\)|\nCORRECT:|\nEXPLANATION:|$)/gm);
+
+        if (optionMatches) {
+            optionMatches.forEach(optionMatch => {
+                const trimmed = optionMatch.trim();
+                if (trimmed.match(/^[A-D]\)/)) {
+                    const letter = trimmed.charAt(0);
+                    const text = trimmed.substring(3).trim();
                     optionsObj[letter] = text;
                     optionsArray.push(text);
-                } else if (line.startsWith('CORRECT:')) {
-                    correctAnswer = line.substring(8).trim().replace(/[[\]]/g, '');
-                } else if (line.startsWith('EXPLANATION:')) {
-                    explanation = line.substring(12).trim();
                 }
             });
+        }
 
-            if (Object.keys(optionsObj).length === 4 && correctAnswer && questionText) {
-                // Convert correct answer letter to array index
-                const correctIndex = ['A', 'B', 'C', 'D'].indexOf(correctAnswer);
+        // Extract correct answer
+        const correctMatch = block.match(/CORRECT:\s*\[?([A-D])\]?/);
+        if (correctMatch) {
+            correctAnswer = correctMatch[1];
+        }
 
-                questions.push({
-                    id: index + 1,
-                    question: questionText,
-                    options: optionsArray, // Use array instead of object
-                    correctAnswer: correctIndex, // Use index instead of letter
-                    explanation: explanation
-                });
-            }
+        // Extract explanation
+        const explanationMatch = block.match(/EXPLANATION:\s*(.+?)(?=\n\d+\.|$)/s);
+        if (explanationMatch) {
+            explanation = explanationMatch[1].trim();
+        }
+
+        if (Object.keys(optionsObj).length === 4 && correctAnswer && questionText) {
+            // Convert correct answer letter to array index
+            const correctIndex = ['A', 'B', 'C', 'D'].indexOf(correctAnswer);
+
+            questions.push({
+                id: index + 1,
+                question: questionText,
+                options: optionsArray, // Use array instead of object
+                correctAnswer: correctIndex, // Use index instead of letter
+                explanation: explanation
+            });
         }
     });
 
@@ -104,7 +124,7 @@ function parseMCQResponse(response, numberOfQuestions = 30) {
 }
 
 // Evaluate MCQ answers using AI
-async function evaluateAnswers(questions, userAnswers, userInfo) {
+async function evaluateAnswers(questions, userAnswers, userInfo, timeSpent = 0) {
     const { name, email } = userInfo;
 
     let correctCount = 0;
@@ -132,7 +152,7 @@ async function evaluateAnswers(questions, userAnswers, userInfo) {
     const grade = getGrade(score);
 
     // Generate AI feedback
-    const feedbackPrompt = `A user named ${name} has completed a 30-question MCQ test and scored ${score}% (${correctCount}/${totalQuestions} correct). 
+    const feedbackPrompt = `A user named ${name} has completed a ${totalQuestions}-question MCQ test and scored ${score}% (${correctCount}/${totalQuestions} correct). 
 
 Provide personalized feedback including:
 1. Overall performance assessment
@@ -158,6 +178,7 @@ Keep it encouraging and constructive.`;
         grade,
         aiFeedback,
         detailedResults,
+        timeSpent: timeSpent,
         timestamp: new Date().toISOString()
     };
 }
@@ -193,6 +214,7 @@ async function sendResultsEmail(userInfo, results, topic) {
           <p><strong>Correct Answers:</strong> ${results.correctAnswers}</p>
           <p><strong>Score:</strong> ${results.score}%</p>
           <p><strong>Grade:</strong> ${results.grade}</p>
+          <p><strong>Time Taken:</strong> ${Math.floor(results.timeSpent / 60)} minutes ${results.timeSpent % 60} seconds</p>
           <p><strong>Test Date:</strong> ${new Date(results.timestamp).toLocaleString()}</p>
         </div>
         
@@ -279,7 +301,7 @@ router.post('/generate', async (req, res) => {
 // Submit MCQ test answers
 router.post('/submit', async (req, res) => {
     try {
-        const { topic, answers, userInfo, numberOfQuestions = 30 } = req.body;
+        const { topic, answers, userInfo, numberOfQuestions = 30, timeSpent = 0 } = req.body;
 
         if (!topic || !answers || !userInfo || !userInfo.name || !userInfo.email) {
             return res.status(400).json({
@@ -294,7 +316,7 @@ router.post('/submit', async (req, res) => {
         const questions = await generateMCQQuestions(topic, 'medium', numberOfQuestions);
 
         // Evaluate answers
-        const results = await evaluateAnswers(questions, answers, userInfo);
+        const results = await evaluateAnswers(questions, answers, userInfo, timeSpent);
 
         // Send results email
         try {
@@ -313,7 +335,8 @@ router.post('/submit', async (req, res) => {
                     correctAnswers: results.correctAnswers,
                     score: results.score,
                     grade: results.grade,
-                    aiFeedback: results.aiFeedback
+                    aiFeedback: results.aiFeedback,
+                    timeSpent: results.timeSpent
                 },
                 message: 'Test submitted successfully! Results have been sent to your email.'
             }
