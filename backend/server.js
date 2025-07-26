@@ -22,8 +22,10 @@ const compileRoute = require('./Routes/compile');
 app.use('/api/compile', compileRoute);
 const chatbotRoutes = require('./Routes/chatbot');
 app.use('/api/chatbot', chatbotRoutes);
-const supportRoutes = require('./Routes/support');
+const supportRoutes = require('./Routes/support_new');
 app.use('/api/support', supportRoutes);
+const mcqRoutes = require('./Routes/mcq');
+app.use('/api/mcq', mcqRoutes);
 
 
 // Connect to DB and start server

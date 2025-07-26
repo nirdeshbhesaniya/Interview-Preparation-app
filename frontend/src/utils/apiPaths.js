@@ -28,5 +28,10 @@ export const API = {
   SUPPORT: {
     CONTACT: `${API_BASE_URL}/support/contact`,
     STATS: `${API_BASE_URL}/support/stats`
+  },
+  MCQ: {
+    GENERATE: `${API_BASE_URL}/mcq/generate`,
+    SUBMIT: `${API_BASE_URL}/mcq/submit`,
+    TOPICS: `${API_BASE_URL}/mcq/topics`
   }
 };

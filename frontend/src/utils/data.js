@@ -1,29 +1,34 @@
 
 
 // data.js
- export const APP_FEATURES = [
+export const APP_FEATURES = [
   {
     id: '01',
+    title: 'MCQ Test Platform',
+    description: 'Take comprehensive multiple choice tests with 30 AI-generated questions, instant evaluation, and detailed email reports.'
+  },
+  {
+    id: '02',
     title: 'Behavioral Questions',
     description: 'Prepare answers for common behavioral questions like STAR method, team conflicts, and leadership examples.'
   },
   {
-    id: '02',
+    id: '03',
     title: 'Data Structures & Algorithms',
     description: 'Practice problems on arrays, linked lists, trees, graphs, dynamic programming, and system design basics.'
   },
   {
-    id: '03',
+    id: '04',
     title: 'System Design Basics',
     description: 'Understand high-level architecture, load balancing, caching, databases, and scalability concepts.'
   },
   {
-    id: '04',
+    id: '05',
     title: 'Resume & Profile Review',
     description: 'Get AI feedback on your resume and LinkedIn profile for clarity, formatting, and achievements.'
   },
   {
-    id: '05',
+    id: '06',
     title: 'Mock Interviews',
     description: 'Simulate real interviews with AI-generated questions and receive instant performance feedback.'
   }

@@ -8,6 +8,7 @@ import LandingPage from './pages/LandingPage';
 import { Dashboard } from './pages/Home/Dashboard';
 import InterviewPrep from './pages/InterviewPrep/InterviewPrep';
 import ContactSupportPage from './pages/ContactSupportPage';
+import MCQTest from './pages/MCQTest/MCQTest';
 
 import MainLayout from './components/layouts/MainLayout';
 import ProtectedRoute from './components/layouts/ProtectedRoute';
@@ -49,10 +50,10 @@ const App = () => {
                 }
               />
               <Route
-                path="/interview-prep/:sessionId"
+                path="/mcq-test"
                 element={
                   <ProtectedRoute>
-                    <InterviewPrep />
+                    <MCQTest />
                   </ProtectedRoute>
                 }
               />

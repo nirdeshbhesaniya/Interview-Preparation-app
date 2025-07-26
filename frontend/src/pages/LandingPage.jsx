@@ -167,6 +167,109 @@ const LandingPage = () => {
 
       <HeroSection />
 
+      {/* MCQ Test Highlight Section */}
+      <section className="px-4 sm:px-6 lg:px-8 py-20 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="text-center text-white"
+          >
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full mb-8">
+              <BrainCircuit className="w-10 h-10 text-white" />
+            </div>
+
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6">
+              Test Your Knowledge with
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-300">
+                AI-Powered MCQ Tests
+              </span>
+            </h2>
+
+            <p className="text-xl sm:text-2xl text-blue-100 max-w-4xl mx-auto mb-12 leading-relaxed">
+              Challenge yourself with 30 AI-generated multiple choice questions tailored to your expertise.
+              Get instant evaluation, detailed feedback, and comprehensive results delivered to your email.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20"
+              >
+                <div className="w-12 h-12 bg-green-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">30 AI Questions</h3>
+                <p className="text-blue-100">Personalized questions based on your topic and experience level</p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20"
+              >
+                <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Zap className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">Instant Results</h3>
+                <p className="text-blue-100">AI evaluation with detailed explanations and improvement tips</p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20"
+              >
+                <div className="w-12 h-12 bg-purple-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Trophy className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">Email Report</h3>
+                <p className="text-blue-100">Comprehensive analysis sent directly to your inbox</p>
+              </motion.div>
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+            >
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => user ? navigate('/mcq-test') : openModal()}
+                className="inline-flex items-center gap-3 px-8 py-4 bg-white text-blue-600 rounded-2xl font-bold text-lg hover:bg-gray-50 transition-all duration-300 shadow-2xl hover:shadow-3xl"
+              >
+                <BrainCircuit className="w-6 h-6" />
+                <span>Start MCQ Test</span>
+                <ArrowRight className="w-5 h-5" />
+              </motion.button>
+
+              <div className="flex items-center gap-2 text-blue-100">
+                <Shield className="w-5 h-5" />
+                <span className="text-sm">Free • No Credit Card Required</span>
+              </div>
+            </motion.div>
+
+            {/* Background decoration */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full blur-3xl" />
+              <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-white/10 rounded-full blur-3xl" />
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
 
       {/* Enhanced Features Section */}
       <section className="px-4 sm:px-6 lg:px-8 py-20 bg-gradient-to-br from-white via-orange-50/30 to-blue-50/30">

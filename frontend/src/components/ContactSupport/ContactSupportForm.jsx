@@ -49,8 +49,12 @@ const ContactSupportForm = () => {
         setIsSubmitting(true);
 
         try {
-            await axios.post(API.SUPPORT.CONTACT, formData);
-            toast.success('Your message has been sent successfully! We\'ll get back to you soon.');
+            const response = await axios.post(API.SUPPORT.CONTACT, formData);
+            toast.success(
+                response.data.message ||
+                'Your message has been sent successfully! Check your email for an AI-powered auto-reply.',
+                { duration: 4000 }
+            );
             setFormData({
                 name: '',
                 email: '',
@@ -61,7 +65,8 @@ const ContactSupportForm = () => {
             });
         } catch (error) {
             console.error('Error submitting form:', error);
-            toast.error('Failed to send message. Please try again.');
+            const errorMsg = error.response?.data?.message || 'Failed to send message. Please try again.';
+            toast.error(errorMsg);
         } finally {
             setIsSubmitting(false);
         }
@@ -210,8 +215,14 @@ const ContactSupportForm = () => {
             {/* Response Time Info */}
             <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                 <p className="text-sm text-blue-800 dark:text-blue-200">
-                    <strong>Response Time:</strong> We typically respond within 24 hours during business days.
+                    <strong>🤖 Instant AI Response:</strong> You'll receive an immediate AI-powered auto-reply with personalized guidance.
+                </p>
+                <p className="text-sm text-blue-800 dark:text-blue-200 mt-2">
+                    <strong>👥 Human Follow-up:</strong> Our support team typically responds within 24 hours during business days.
                     For urgent issues, we aim to respond within 4 hours.
+                </p>
+                <p className="text-sm text-blue-700 dark:text-blue-300 mt-2 italic">
+                    ✨ Powered by Google Gemini AI for intelligent, context-aware responses
                 </p>
             </div>
         </div>
