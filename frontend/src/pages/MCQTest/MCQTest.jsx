@@ -24,8 +24,6 @@ const MCQTest = () => {
     const [answers, setAnswers] = useState({});
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [timeLeft, setTimeLeft] = useState(1800); // Default 30 minutes
-    const [testStartTime, setTestStartTime] = useState(null);
-    const [timeTaken, setTimeTaken] = useState(0);
     const [results, setResults] = useState(null);
     const [loading, setLoading] = useState(false);
     const [availableTopics] = useState([
@@ -179,7 +177,6 @@ const MCQTest = () => {
                 setQuestions(response.data.data.questions);
                 setCurrentStep('test');
                 setTimeLeft(formData.numberOfQuestions * 120); // Reset timer based on questions
-                setTestStartTime(Date.now()); // Record test start time
                 toast.success(`Test started! You have ${Math.ceil(formData.numberOfQuestions * 2)} minutes to complete.`);
             }
         } catch (error) {
@@ -203,10 +200,6 @@ const MCQTest = () => {
             return;
         }
 
-        // Calculate time taken
-        const timeSpentInSeconds = testStartTime ? Math.floor((Date.now() - testStartTime) / 1000) : 0;
-        setTimeTaken(timeSpentInSeconds);
-
         setLoading(true);
         try {
             const submissionData = {
@@ -219,16 +212,13 @@ const MCQTest = () => {
                 numberOfQuestions: formData.numberOfQuestions,
                 experience: formData.experience,
                 specialization: formData.specialization,
-                timeSpent: timeSpentInSeconds
+                timeSpent: (formData.numberOfQuestions * 120) - timeLeft
             };
 
             const response = await axiosInstance.post(API.MCQ.SUBMIT, submissionData);
 
             if (response.data.success) {
-                setResults({
-                    ...response.data.data.results,
-                    timeSpent: timeSpentInSeconds
-                });
+                setResults(response.data.data.results);
                 setCurrentStep('results');
                 toast.success('Test submitted successfully! Results sent to your email.');
             }
@@ -518,10 +508,10 @@ const MCQTest = () => {
                                 whileTap={{ scale: 0.95 }}
                                 onClick={() => setCurrentQuestion(index)}
                                 className={`w-10 h-10 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center ${index === currentQuestion
-                                    ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
-                                    : answers[index] !== undefined
-                                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 border border-green-300 dark:border-green-700'
-                                        : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+                                        ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
+                                        : answers[index] !== undefined
+                                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 border border-green-300 dark:border-green-700'
+                                            : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
                                     }`}
                             >
                                 {answers[index] !== undefined && index !== currentQuestion && (
