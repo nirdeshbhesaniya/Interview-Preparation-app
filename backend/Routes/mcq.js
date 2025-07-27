@@ -27,26 +27,25 @@ D) Option D
 CORRECT: [A/B/C/D]
 EXPLANATION: Brief explanation of why this answer is correct.
 
-Requirements:
+IMPORTANT FORMATTING RULES:
+- Use proper markdown code formatting for code blocks
+- For inline code, use single backticks
+- Keep code blocks clean and properly indented
+- Avoid special characters or regex patterns that might break parsing
+- Each question must be on a separate line
+- Options A, B, C, D must each be on separate lines
+- Use clear, readable code examples
+- End code blocks cleanly without any extra characters
+
+CONTENT REQUIREMENTS:
 - Questions should cover different aspects of ${topic}
-- Mix of theoretical and practical questions with CODE EXAMPLES
-- Include code snippets using markdown format: \`\`\`language\ncode here\n\`\`\`
-- Each question should have 4 options (A, B, C, D)
-- Only one correct answer per question
-- Clear and concise explanations
-- Progressive difficulty throughout the test
-- Cover topics like: basics, advanced concepts, best practices, common mistakes, real-world applications
-- At least 30% of questions should include code snippets or examples
-- Use proper markdown formatting for code: \`inline code\` or \`\`\`language blocks\`\`\`
-- Include syntax highlighting language specification (javascript, python, html, css, etc.)
+- Include at least 40% questions with code examples
+- Mix of: syntax questions, output prediction, debugging, best practices
+- Use realistic, practical code scenarios
+- Progressive difficulty: easy → medium → hard
+- Cover: fundamentals, advanced concepts, common mistakes, real-world applications
 
-Example formats for code questions:
-- What will the following code output?
-- Which code snippet correctly implements...?
-- What is wrong with this code?
-- Complete the missing code...
-
-Generate all ${numberOfQuestions} questions in the exact format specified above with proper markdown code formatting.`;
+Generate all ${numberOfQuestions} questions following this exact format with clean, properly formatted code blocks.`;
 
     try {
         const response = await chatWithAI(prompt, 'general');
@@ -57,73 +56,126 @@ Generate all ${numberOfQuestions} questions in the exact format specified above 
     }
 }
 
-// Parse AI response into structured MCQ format
+// Parse AI response into structured MCQ format with improved code block handling
 function parseMCQResponse(response, numberOfQuestions = 30) {
     const questions = [];
-    const questionBlocks = response.split(/(?=\d+\.\s)/).filter(block => block.trim());
+
+    // Function to clean code content and remove artifacts
+    const cleanContent = (content) => {
+        if (!content) return content;
+        return content
+            .replace(/```\?/g, '') // Remove ```? artifacts
+            .replace(/\?\?\?/g, '') // Remove ??? artifacts
+            .replace(/```(\w+)?\s*\n([\s\S]*?)\n\s*```/g, (match, lang, code) => {
+                // Clean up code blocks
+                const cleanCode = code.trim();
+                return `\`\`\`${lang || ''}\n${cleanCode}\n\`\`\``;
+            })
+            .replace(/\n\s*\n\s*\n/g, '\n\n') // Normalize excessive line breaks
+            .trim();
+    };
+
+    // Split by question numbers but preserve code blocks
+    const questionBlocks = response.split(/(?=^\d+\.\s)/m).filter(block => block.trim());
 
     questionBlocks.forEach((block, index) => {
         if (!block.trim()) return;
 
-        // Preserve code blocks by not splitting them
-        const questionMatch = block.match(/^\d+\.\s(.+?)(?=\n[A-D]\)|$)/s);
-        if (!questionMatch) return;
+        try {
+            // Extract question text (everything from question number to first option)
+            const questionMatch = block.match(/^\d+\.\s([\s\S]*?)(?=^[A-D]\))/m);
+            if (!questionMatch) return;
 
-        let questionText = questionMatch[1].trim();
-        if (!questionText.endsWith('?')) {
-            questionText += '?';
-        }
+            let questionText = cleanContent(questionMatch[1].trim());
 
-        const optionsObj = {};
-        const optionsArray = [];
-        let correctAnswer = '';
-        let explanation = '';
+            if (!questionText.endsWith('?')) {
+                questionText += '?';
+            }
 
-        // Extract options more carefully to preserve formatting
-        const optionMatches = block.match(/^([A-D]\).+?)(?=\n[A-D]\)|\nCORRECT:|\nEXPLANATION:|$)/gm);
+            const optionsArray = [];
+            let correctAnswer = '';
+            let explanation = '';
 
-        if (optionMatches) {
-            optionMatches.forEach(optionMatch => {
-                const trimmed = optionMatch.trim();
-                if (trimmed.match(/^[A-D]\)/)) {
-                    const letter = trimmed.charAt(0);
-                    const text = trimmed.substring(3).trim();
-                    optionsObj[letter] = text;
-                    optionsArray.push(text);
+            // Extract options with better pattern matching
+            const lines = block.split('\n');
+            let currentOption = '';
+            let optionLetter = '';
+            let inOption = false;
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+
+                // Check if this is an option line
+                const optionStart = line.match(/^([A-D])\)\s*(.*)$/);
+                if (optionStart) {
+                    // Save previous option if exists
+                    if (inOption && currentOption && optionLetter) {
+                        optionsArray[optionLetter.charCodeAt(0) - 65] = cleanContent(currentOption.trim());
+                    }
+
+                    // Start new option
+                    optionLetter = optionStart[1];
+                    currentOption = optionStart[2];
+                    inOption = true;
+                } else if (inOption && !line.startsWith('CORRECT:') && !line.startsWith('EXPLANATION:')) {
+                    // Continue current option (for multi-line options with code)
+                    currentOption += '\n' + line;
+                } else if (line.startsWith('CORRECT:')) {
+                    // Save last option before processing correct answer
+                    if (inOption && currentOption && optionLetter) {
+                        optionsArray[optionLetter.charCodeAt(0) - 65] = cleanContent(currentOption.trim());
+                    }
+                    inOption = false;
+
+                    // Extract correct answer
+                    const correctMatch = line.match(/CORRECT:\s*\[?([A-D])\]?/);
+                    if (correctMatch) {
+                        correctAnswer = correctMatch[1];
+                    }
+                } else if (line.startsWith('EXPLANATION:')) {
+                    explanation = line.substring(12).trim();
+                    // Continue collecting explanation if it spans multiple lines
+                    for (let j = i + 1; j < lines.length; j++) {
+                        const nextLine = lines[j].trim();
+                        if (nextLine && !nextLine.match(/^\d+\./)) {
+                            explanation += ' ' + nextLine;
+                        } else {
+                            break;
+                        }
+                    }
+                    explanation = cleanContent(explanation);
+                    break;
                 }
-            });
-        }
+            }
 
-        // Extract correct answer
-        const correctMatch = block.match(/CORRECT:\s*\[?([A-D])\]?/);
-        if (correctMatch) {
-            correctAnswer = correctMatch[1];
-        }
+            // Save the last option if we ended while processing it
+            if (inOption && currentOption && optionLetter) {
+                optionsArray[optionLetter.charCodeAt(0) - 65] = currentOption.trim();
+            }
 
-        // Extract explanation
-        const explanationMatch = block.match(/EXPLANATION:\s*(.+?)(?=\n\d+\.|$)/s);
-        if (explanationMatch) {
-            explanation = explanationMatch[1].trim();
-        }
+            // Filter out empty options and ensure we have 4 options
+            const validOptions = optionsArray.filter(opt => opt && opt.trim());
 
-        if (Object.keys(optionsObj).length === 4 && correctAnswer && questionText) {
-            // Convert correct answer letter to array index
-            const correctIndex = ['A', 'B', 'C', 'D'].indexOf(correctAnswer);
+            if (validOptions.length === 4 && correctAnswer && questionText) {
+                // Convert correct answer letter to array index
+                const correctIndex = ['A', 'B', 'C', 'D'].indexOf(correctAnswer);
 
-            questions.push({
-                id: index + 1,
-                question: questionText,
-                options: optionsArray, // Use array instead of object
-                correctAnswer: correctIndex, // Use index instead of letter
-                explanation: explanation
-            });
+                questions.push({
+                    id: questions.length + 1,
+                    question: questionText,
+                    options: validOptions,
+                    correctAnswer: correctIndex,
+                    explanation: explanation || 'No explanation provided.'
+                });
+            }
+        } catch (error) {
+            console.error('Error parsing question block:', error);
+            // Skip this block and continue with next
         }
     });
 
-    return questions.slice(0, numberOfQuestions); // Ensure exactly the requested number of questions
-}
-
-// Evaluate MCQ answers using AI
+    return questions.slice(0, numberOfQuestions);
+}// Evaluate MCQ answers using AI
 async function evaluateAnswers(questions, userAnswers, userInfo, timeSpent = 0) {
     const { name, email } = userInfo;
 
@@ -225,15 +277,42 @@ async function sendResultsEmail(userInfo, results, topic) {
         
         <div style="margin: 30px 0;">
           <h3 style="color: #333;">Detailed Results</h3>
-          ${results.detailedResults.map((result, index) => `
-            <div style="border: 1px solid #ddd; margin: 10px 0; padding: 15px; border-radius: 5px; ${result.isCorrect ? 'background: #f0f9f0; border-color: #4ade80;' : 'background: #fef2f2; border-color: #f87171;'}">
-              <p style="margin: 0 0 10px 0; font-weight: bold;">Q${result.questionNumber}: ${result.question}</p>
-              <p style="margin: 5px 0;"><strong>Your Answer:</strong> ${result.userAnswer}</p>
-              <p style="margin: 5px 0;"><strong>Correct Answer:</strong> ${result.correctAnswer}</p>
-              <p style="margin: 5px 0; color: ${result.isCorrect ? '#16a34a' : '#dc2626'};"><strong>Status:</strong> ${result.isCorrect ? '✅ Correct' : '❌ Incorrect'}</p>
-              ${result.explanation ? `<p style="margin: 10px 0 0 0; font-style: italic; color: #666;"><strong>Explanation:</strong> ${result.explanation}</p>` : ''}
-            </div>
-          `).join('')}
+          ${results.detailedResults.map((result, index) => {
+        // Function to format text with basic code highlighting for email
+        const formatForEmail = (text) => {
+            return text
+                .replace(/```(\w+)?\n([\s\S]*?)```/g, '<div style="background: #f8f9fa; border-left: 4px solid #007bff; padding: 10px; margin: 10px 0; font-family: monospace; font-size: 14px; overflow-x: auto; border-radius: 4px;"><pre style="margin: 0; white-space: pre-wrap;">$2</pre></div>')
+                .replace(/`([^`]+)`/g, '<code style="background: #f1f3f4; padding: 2px 4px; border-radius: 3px; font-family: monospace; font-size: 13px;">$1</code>')
+                .replace(/\n/g, '<br>');
+        };
+
+        return `
+            <div style="border: 1px solid #ddd; margin: 15px 0; padding: 20px; border-radius: 8px; ${result.isCorrect ? 'background: #f0f9f0; border-color: #4ade80;' : 'background: #fef2f2; border-color: #f87171;'}">
+              <div style="margin-bottom: 15px;">
+                <p style="margin: 0 0 10px 0; font-weight: bold; font-size: 16px;">Q${result.questionNumber}: </p>
+                <div style="margin: 10px 0; line-height: 1.6;">${formatForEmail(result.question)}</div>
+              </div>
+              
+              <div style="background: white; padding: 15px; border-radius: 6px; margin: 10px 0;">
+                <p style="margin: 0 0 8px 0;"><strong style="color: #666;">Your Answer:</strong></p>
+                <div style="margin: 5px 0; padding: 8px; background: #f8f9fa; border-radius: 4px;">${formatForEmail(result.userAnswer)}</div>
+                
+                <p style="margin: 15px 0 8px 0;"><strong style="color: #666;">Correct Answer:</strong></p>
+                <div style="margin: 5px 0; padding: 8px; background: #e8f5e8; border-radius: 4px;">${formatForEmail(result.correctAnswer)}</div>
+              </div>
+              
+              <p style="margin: 15px 0 10px 0; font-weight: bold; color: ${result.isCorrect ? '#16a34a' : '#dc2626'}; font-size: 14px;">
+                <strong>Status:</strong> ${result.isCorrect ? '✅ Correct' : '❌ Incorrect'}
+              </p>
+              
+              ${result.explanation ? `
+                <div style="margin: 15px 0 0 0; padding: 12px; background: #f0f7ff; border-left: 4px solid #2563eb; border-radius: 4px;">
+                  <p style="margin: 0 0 5px 0; font-weight: bold; color: #1e40af;">Explanation:</p>
+                  <div style="color: #374151; line-height: 1.6;">${formatForEmail(result.explanation)}</div>
+                </div>
+              ` : ''}
+            </div>`;
+    }).join('')}
         </div>
         
         <div style="text-align: center; margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px;">

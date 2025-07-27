@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -35,73 +35,119 @@ const MCQTest = () => {
         'Backend Development'
     ]);
 
-    // Custom components for markdown rendering with code support
+    // Enhanced components for markdown rendering with better code support
     const components = {
         code({ node, inline, className, children, ...props }) {
             const match = /language-(\w+)/.exec(className || '');
             const language = match ? match[1] : '';
 
-            if (!inline && language) {
+            // Clean the code content - remove trailing newlines and artifacts
+            const cleanCode = String(children)
+                .replace(/\n$/, '') // Remove trailing newline
+                .replace(/```\?/g, '') // Remove ```? artifacts
+                .replace(/```$/g, '') // Remove trailing ```
+                .replace(/^```\w*\n?/g, '') // Remove leading ``` with optional language
+                .trim();
+
+            if (!inline && (language || cleanCode.includes('\n') || cleanCode.length > 50)) {
                 return (
-                    <div className="relative group">
-                        <div className="flex items-center justify-between bg-gray-800 text-gray-300 px-4 py-2 text-xs rounded-t-lg">
-                            <span className="flex items-center gap-2">
-                                <Code className="w-3 h-3" />
-                                {language.toUpperCase()}
-                            </span>
+                    <div className="relative group my-4 bg-gray-900 rounded-lg border border-gray-700 shadow-lg overflow-hidden">
+                        <div className="flex items-center justify-between bg-gray-800 text-gray-300 px-3 sm:px-4 py-2.5 border-b border-gray-700">
+                            <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-1.5">
+                                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                                    <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                                </div>
+                                <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+                                    {language || 'code'}
+                                </span>
+                            </div>
                             <button
                                 onClick={() => {
-                                    navigator.clipboard.writeText(String(children).replace(/\n$/, ''));
+                                    navigator.clipboard.writeText(cleanCode);
                                     toast.success('Code copied to clipboard!');
                                 }}
-                                className="flex items-center gap-1 px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded transition-colors"
+                                className="flex items-center gap-1.5 px-2.5 py-1 bg-gray-700 hover:bg-gray-600 rounded text-xs transition-colors opacity-0 group-hover:opacity-100 font-medium"
+                                title="Copy code"
                             >
                                 <Copy className="w-3 h-3" />
                                 Copy
                             </button>
                         </div>
-                        <SyntaxHighlighter
-                            style={tomorrow}
-                            language={language}
-                            PreTag="div"
-                            className="!mt-0 !rounded-t-none"
-                            {...props}
-                        >
-                            {String(children).replace(/\n$/, '')}
-                        </SyntaxHighlighter>
+                        <div className="overflow-x-auto bg-gray-900">
+                            <SyntaxHighlighter
+                                style={tomorrow}
+                                language={language || 'text'}
+                                PreTag="div"
+                                className="!mt-0 !rounded-none !bg-gray-900"
+                                customStyle={{
+                                    margin: 0,
+                                    padding: '1rem 1.5rem',
+                                    fontSize: '0.875rem',
+                                    lineHeight: '1.6',
+                                    backgroundColor: '#111827', // gray-900
+                                    borderRadius: 0
+                                }}
+                                {...props}
+                            >
+                                {cleanCode}
+                            </SyntaxHighlighter>
+                        </div>
                     </div>
                 );
             }
 
+            // Inline code with dark theme
             return (
-                <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-sm font-mono" {...props}>
-                    {children}
+                <code className="bg-gray-800 text-gray-200 px-2 py-1 rounded text-sm font-mono border border-gray-600" {...props}>
+                    {cleanCode}
                 </code>
             );
         },
         pre({ children }) {
-            return <div className="overflow-x-auto">{children}</div>;
+            return <div className="overflow-x-auto rounded-lg">{children}</div>;
         },
         p({ children }) {
-            return <p className="mb-4 last:mb-0 leading-relaxed">{children}</p>;
+            return <p className="mb-3 last:mb-0 leading-relaxed text-gray-700 dark:text-gray-300">{children}</p>;
         },
         ul({ children }) {
-            return <ul className="list-disc list-inside mb-4 space-y-1">{children}</ul>;
+            return <ul className="list-disc list-inside mb-4 space-y-2 text-gray-700 dark:text-gray-300 pl-2">{children}</ul>;
         },
         ol({ children }) {
-            return <ol className="list-decimal list-inside mb-4 space-y-1">{children}</ol>;
+            return <ol className="list-decimal list-inside mb-4 space-y-2 text-gray-700 dark:text-gray-300 pl-2">{children}</ol>;
+        },
+        li({ children }) {
+            return <li className="leading-relaxed">{children}</li>;
         },
         blockquote({ children }) {
             return (
-                <blockquote className="border-l-4 border-blue-500 pl-4 py-2 my-4 bg-blue-50 dark:bg-blue-900/20 rounded-r">
-                    {children}
+                <blockquote className="border-l-4 border-orange-500 pl-4 py-3 my-4 bg-orange-50 dark:bg-orange-900/20 rounded-r-lg">
+                    <div className="text-gray-700 dark:text-gray-300 italic">
+                        {children}
+                    </div>
                 </blockquote>
             );
         },
+        h1({ children }) {
+            return <h1 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">{children}</h1>;
+        },
+        h2({ children }) {
+            return <h2 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">{children}</h2>;
+        },
+        h3({ children }) {
+            return <h3 className="text-base font-medium mb-2 text-gray-900 dark:text-white">{children}</h3>;
+        },
+        strong({ children }) {
+            return <strong className="font-semibold text-gray-900 dark:text-white">{children}</strong>;
+        },
+        em({ children }) {
+            return <em className="italic text-gray-700 dark:text-gray-300">{children}</em>;
+        },
         table({ children }) {
             return (
-                <div className="overflow-x-auto my-4">
-                    <table className="min-w-full border border-gray-300 dark:border-gray-600">
+                <div className="overflow-x-auto my-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <table className="min-w-full bg-white dark:bg-gray-800">
                         {children}
                     </table>
                 </div>
@@ -109,14 +155,14 @@ const MCQTest = () => {
         },
         th({ children }) {
             return (
-                <th className="border border-gray-300 dark:border-gray-600 px-4 py-2 bg-gray-100 dark:bg-gray-700 font-semibold text-left">
+                <th className="border-b border-gray-200 dark:border-gray-600 px-4 py-3 bg-gray-50 dark:bg-gray-700 font-semibold text-left text-gray-900 dark:text-white text-sm">
                     {children}
                 </th>
             );
         },
         td({ children }) {
             return (
-                <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">
+                <td className="border-b border-gray-200 dark:border-gray-600 px-4 py-3 text-gray-700 dark:text-gray-300 text-sm">
                     {children}
                 </td>
             );
@@ -125,7 +171,8 @@ const MCQTest = () => {
 
     // Utility function to detect if content contains code
     const containsCode = (text) => {
-        return text && (
+        if (!text) return false;
+        return (
             text.includes('```') ||
             text.includes('function') ||
             text.includes('class ') ||
@@ -136,7 +183,11 @@ const MCQTest = () => {
             text.includes('def ') ||
             text.includes('public ') ||
             text.includes('private ') ||
-            text.includes('<') && text.includes('>') && text.includes('/')
+            text.includes('console.') ||
+            text.includes('print(') ||
+            text.includes('return ') ||
+            /\b(for|while|if|else)\s*\(/.test(text) ||
+            (text.includes('<') && text.includes('>') && text.includes('/'))
         );
     };
 
@@ -197,7 +248,7 @@ const MCQTest = () => {
         }));
     };
 
-    const handleSubmitTest = async () => {
+    const handleSubmitTest = useCallback(async () => {
         if (Object.keys(answers).length === 0) {
             toast.error('Please answer at least one question before submitting');
             return;
@@ -240,7 +291,7 @@ const MCQTest = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [answers, testStartTime, formData, timeLeft, user]);
 
     const renderSetupForm = () => (
         <motion.div
@@ -421,16 +472,20 @@ const MCQTest = () => {
                                             <span>{formatTime(timeLeft)}</span>
                                         </div>
                                         {containsCode(questions[currentQuestion]?.question) && (
-                                            <span className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded text-xs font-medium flex items-center gap-1">
+                                            <span className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-xs font-medium flex items-center gap-1">
                                                 <Code className="w-3 h-3" />
-                                                Code
+                                                Code Question
                                             </span>
                                         )}
                                     </div>
-                                    <div className="prose prose-lg dark:prose-invert max-w-none overflow-x-auto">
-                                        <ReactMarkdown components={components}>
-                                            {questions[currentQuestion]?.question}
-                                        </ReactMarkdown>
+
+                                    {/* Enhanced Question Content Container */}
+                                    <div className="bg-white dark:bg-gray-800 rounded-xl p-4 lg:p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+                                        <div className="prose prose-base dark:prose-invert max-w-none markdown-content [&_pre]:!bg-transparent [&_code]:!bg-transparent">
+                                            <ReactMarkdown components={components}>
+                                                {questions[currentQuestion]?.question}
+                                            </ReactMarkdown>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -482,13 +537,23 @@ const MCQTest = () => {
                                             )}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2 mb-2">
+                                            <div className="flex items-center justify-between mb-2">
                                                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1">
                                                     {String.fromCharCode(65 + optionIndex)}.
-                                                    {containsCode(option) && <Code className="w-3 h-3" />}
+                                                    {containsCode(option) && (
+                                                        <span className="px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded text-xs flex items-center gap-1">
+                                                            <Code className="w-3 h-3" />
+                                                            Code
+                                                        </span>
+                                                    )}
                                                 </span>
                                             </div>
-                                            <div className="prose prose-sm dark:prose-invert max-w-none overflow-x-auto">
+
+                                            {/* Enhanced Option Content */}
+                                            <div className={`prose prose-sm dark:prose-invert max-w-none ${containsCode(option)
+                                                ? 'bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3'
+                                                : ''
+                                                }`}>
                                                 <ReactMarkdown components={components}>
                                                     {option}
                                                 </ReactMarkdown>

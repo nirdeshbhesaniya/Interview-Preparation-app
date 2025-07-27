@@ -319,3 +319,59 @@
   background-clip: text;
 }
 
+/* Enhanced code block styling for MCQ Test */
+.markdown-content pre {
+  margin: 1rem 0 !important;
+}
+
+.markdown-content code {
+  font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace !important;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.markdown-content pre code {
+  background: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  border: none !important;
+}
+
+/* Better scrollbar for code blocks */
+.markdown-content pre::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.markdown-content pre::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 4px;
+}
+
+.markdown-content pre::-webkit-scrollbar-track {
+  background: rgba(107, 114, 128, 0.1);
+  border-radius: 4px;
+}
+
+/* Dark mode adjustments */
+.dark .markdown-content pre::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.7);
+}
+
+.dark .markdown-content pre::-webkit-scrollbar-track {
+  background: rgba(55, 65, 81, 0.3);
+}
+
+/* MCQ specific styling */
+.mcq-option-code {
+  background: rgba(59, 130, 246, 0.05) !important;
+  border: 1px solid rgba(59, 130, 246, 0.1) !important;
+  border-radius: 0.5rem !important;
+  padding: 0.75rem !important;
+}
+
+.dark .mcq-option-code {
+  background: rgba(59, 130, 246, 0.1) !important;
+  border: 1px solid rgba(59, 130, 246, 0.2) !important;
+}
+
