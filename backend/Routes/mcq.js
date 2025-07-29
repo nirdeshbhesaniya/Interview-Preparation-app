@@ -28,14 +28,13 @@ CORRECT: [A/B/C/D]
 EXPLANATION: Brief explanation of why this answer is correct.
 
 IMPORTANT FORMATTING RULES:
-- Use proper markdown code formatting for code blocks
-- For inline code, use single backticks
+- Use proper markdown code formatting: \`\`\`javascript, \`\`\`python, \`\`\`html, etc.
+- For inline code, use single backticks: \`variableName\`
 - Keep code blocks clean and properly indented
 - Avoid special characters or regex patterns that might break parsing
 - Each question must be on a separate line
 - Options A, B, C, D must each be on separate lines
 - Use clear, readable code examples
-- End code blocks cleanly without any extra characters
 
 CONTENT REQUIREMENTS:
 - Questions should cover different aspects of ${topic}
@@ -45,7 +44,29 @@ CONTENT REQUIREMENTS:
 - Progressive difficulty: easy → medium → hard
 - Cover: fundamentals, advanced concepts, common mistakes, real-world applications
 
-Generate all ${numberOfQuestions} questions following this exact format with clean, properly formatted code blocks.`;
+EXAMPLE CODE QUESTION FORMAT:
+5. What will the following JavaScript code output?
+
+\`\`\`javascript
+function test() {
+    let x = 1;
+    if (true) {
+        let x = 2;
+        console.log(x);
+    }
+    console.log(x);
+}
+test();
+\`\`\`
+
+A) 2, 1
+B) 1, 2  
+C) 2, 2
+D) 1, 1
+CORRECT: [A]
+EXPLANATION: Block-scoped let creates a new variable inside the if block.
+
+Generate all ${numberOfQuestions} questions following this exact format with proper markdown code formatting.`;
 
     try {
         const response = await chatWithAI(prompt, 'general');
@@ -60,21 +81,6 @@ Generate all ${numberOfQuestions} questions following this exact format with cle
 function parseMCQResponse(response, numberOfQuestions = 30) {
     const questions = [];
 
-    // Function to clean code content and remove artifacts
-    const cleanContent = (content) => {
-        if (!content) return content;
-        return content
-            .replace(/```\?/g, '') // Remove ```? artifacts
-            .replace(/\?\?\?/g, '') // Remove ??? artifacts
-            .replace(/```(\w+)?\s*\n([\s\S]*?)\n\s*```/g, (match, lang, code) => {
-                // Clean up code blocks
-                const cleanCode = code.trim();
-                return `\`\`\`${lang || ''}\n${cleanCode}\n\`\`\``;
-            })
-            .replace(/\n\s*\n\s*\n/g, '\n\n') // Normalize excessive line breaks
-            .trim();
-    };
-
     // Split by question numbers but preserve code blocks
     const questionBlocks = response.split(/(?=^\d+\.\s)/m).filter(block => block.trim());
 
@@ -86,7 +92,13 @@ function parseMCQResponse(response, numberOfQuestions = 30) {
             const questionMatch = block.match(/^\d+\.\s([\s\S]*?)(?=^[A-D]\))/m);
             if (!questionMatch) return;
 
-            let questionText = cleanContent(questionMatch[1].trim());
+            let questionText = questionMatch[1].trim();
+
+            // Clean up question text
+            questionText = questionText
+                .replace(/\n\s*\n/g, '\n\n') // Normalize line breaks
+                .replace(/^\s+|\s+$/g, '') // Trim whitespace
+                .trim();
 
             if (!questionText.endsWith('?')) {
                 questionText += '?';
@@ -110,7 +122,7 @@ function parseMCQResponse(response, numberOfQuestions = 30) {
                 if (optionStart) {
                     // Save previous option if exists
                     if (inOption && currentOption && optionLetter) {
-                        optionsArray[optionLetter.charCodeAt(0) - 65] = cleanContent(currentOption.trim());
+                        optionsArray[optionLetter.charCodeAt(0) - 65] = currentOption.trim();
                     }
 
                     // Start new option
@@ -123,7 +135,7 @@ function parseMCQResponse(response, numberOfQuestions = 30) {
                 } else if (line.startsWith('CORRECT:')) {
                     // Save last option before processing correct answer
                     if (inOption && currentOption && optionLetter) {
-                        optionsArray[optionLetter.charCodeAt(0) - 65] = cleanContent(currentOption.trim());
+                        optionsArray[optionLetter.charCodeAt(0) - 65] = currentOption.trim();
                     }
                     inOption = false;
 
@@ -143,7 +155,6 @@ function parseMCQResponse(response, numberOfQuestions = 30) {
                             break;
                         }
                     }
-                    explanation = cleanContent(explanation);
                     break;
                 }
             }
