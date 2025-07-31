@@ -94,7 +94,6 @@
   ::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(45deg, #ea580c, #b91c1c);
   }
-  }
 }
 
 .custom-scrollbar::-webkit-scrollbar {
