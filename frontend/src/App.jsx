@@ -9,6 +9,9 @@ import { Dashboard } from './pages/Home/Dashboard';
 import InterviewPrep from './pages/InterviewPrep/InterviewPrep';
 import ContactSupportPage from './pages/ContactSupportPage';
 import MCQTest from './pages/MCQTest/MCQTest';
+import ProfilePage from './pages/ProfilePage';
+import SettingsPage from './pages/SettingsPage';
+import NotificationsPage from './pages/NotificationsPage';
 
 import MainLayout from './components/layouts/MainLayout';
 import ProtectedRoute from './components/layouts/ProtectedRoute';
@@ -62,6 +65,30 @@ const App = () => {
                 element={
                   <ProtectedRoute>
                     <InterviewPrep />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <ProfilePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/settings"
+                element={
+                  <ProtectedRoute>
+                    <SettingsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/notifications"
+                element={
+                  <ProtectedRoute>
+                    <NotificationsPage />
                   </ProtectedRoute>
                 }
               />

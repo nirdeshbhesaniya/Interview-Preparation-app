@@ -16,6 +16,8 @@ app.use('/uploads', express.static('uploads')); // Serve images
 
 // Routes
 app.use('/api/auth', authRoutes);
+const profileRoutes = require('./Routes/profileRoutes');
+app.use('/api/profile', profileRoutes);
 const interviewRoutes = require('./Routes/interview');
 app.use('/api/interview', interviewRoutes);
 const compileRoute = require('./Routes/compile');

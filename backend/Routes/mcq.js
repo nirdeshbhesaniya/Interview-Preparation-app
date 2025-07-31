@@ -14,9 +14,38 @@ const createTransporter = () => {
     });
 };
 
-// Generate MCQ questions using Gemini AI
+// Generate MCQ questions using Gemini AI with uniqueness factors
 async function generateMCQQuestions(topic, difficulty = 'medium', numberOfQuestions = 30) {
-    const prompt = `Generate exactly ${numberOfQuestions} multiple-choice questions about "${topic}" with ${difficulty} difficulty level.
+    // Add randomization factors to ensure unique questions every time
+    const randomSeed = Math.floor(Math.random() * 100000);
+    const timestamp = Date.now();
+    const uniqueFactors = [
+        'recent industry trends',
+        'practical scenarios',
+        'edge cases',
+        'optimization techniques',
+        'debugging challenges',
+        'best practices',
+        'common pitfalls',
+        'advanced concepts',
+        'real-world applications',
+        'performance considerations'
+    ];
+
+    // Randomly select 3-4 focus areas for uniqueness
+    const selectedFocusAreas = uniqueFactors
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3 + Math.floor(Math.random() * 2))
+        .join(', ');
+
+    const prompt = `Generate exactly ${numberOfQuestions} UNIQUE and VARIED multiple-choice questions about "${topic}" with ${difficulty} difficulty level.
+
+UNIQUENESS REQUIREMENTS (Session ID: ${randomSeed}-${timestamp}):
+- Focus areas for this session: ${selectedFocusAreas}
+- Create DIVERSE question types and scenarios
+- Avoid repetitive patterns or similar questions
+- Include varied contexts and use cases
+- Mix different subtopics within ${topic}
 
 Format each question exactly as follows:
 QUESTION_NUMBER. Question text here?
@@ -28,13 +57,14 @@ CORRECT: [A/B/C/D]
 EXPLANATION: Brief explanation of why this answer is correct.
 
 IMPORTANT FORMATTING RULES:
-- Use proper markdown code formatting: \`\`\`javascript, \`\`\`python, \`\`\`html, etc.
-- For inline code, use single backticks: \`variableName\`
+- Use proper markdown code formatting for code blocks
+- For inline code, use single backticks
 - Keep code blocks clean and properly indented
 - Avoid special characters or regex patterns that might break parsing
 - Each question must be on a separate line
 - Options A, B, C, D must each be on separate lines
 - Use clear, readable code examples
+- End code blocks cleanly without any extra characters
 
 CONTENT REQUIREMENTS:
 - Questions should cover different aspects of ${topic}
@@ -43,30 +73,9 @@ CONTENT REQUIREMENTS:
 - Use realistic, practical code scenarios
 - Progressive difficulty: easy → medium → hard
 - Cover: fundamentals, advanced concepts, common mistakes, real-world applications
+- ENSURE EACH QUESTION IS UNIQUE AND NOT REPETITIVE
 
-EXAMPLE CODE QUESTION FORMAT:
-5. What will the following JavaScript code output?
-
-\`\`\`javascript
-function test() {
-    let x = 1;
-    if (true) {
-        let x = 2;
-        console.log(x);
-    }
-    console.log(x);
-}
-test();
-\`\`\`
-
-A) 2, 1
-B) 1, 2  
-C) 2, 2
-D) 1, 1
-CORRECT: [A]
-EXPLANATION: Block-scoped let creates a new variable inside the if block.
-
-Generate all ${numberOfQuestions} questions following this exact format with proper markdown code formatting.`;
+Generate all ${numberOfQuestions} questions following this exact format with clean, properly formatted code blocks.`;
 
     try {
         const response = await chatWithAI(prompt, 'general');
@@ -81,6 +90,21 @@ Generate all ${numberOfQuestions} questions following this exact format with pro
 function parseMCQResponse(response, numberOfQuestions = 30) {
     const questions = [];
 
+    // Function to clean code content and remove artifacts
+    const cleanContent = (content) => {
+        if (!content) return content;
+        return content
+            .replace(/```\?/g, '') // Remove ```? artifacts
+            .replace(/\?\?\?/g, '') // Remove ??? artifacts
+            .replace(/```(\w+)?\s*\n([\s\S]*?)\n\s*```/g, (match, lang, code) => {
+                // Clean up code blocks
+                const cleanCode = code.trim();
+                return `\`\`\`${lang || ''}\n${cleanCode}\n\`\`\``;
+            })
+            .replace(/\n\s*\n\s*\n/g, '\n\n') // Normalize excessive line breaks
+            .trim();
+    };
+
     // Split by question numbers but preserve code blocks
     const questionBlocks = response.split(/(?=^\d+\.\s)/m).filter(block => block.trim());
 
@@ -92,13 +116,7 @@ function parseMCQResponse(response, numberOfQuestions = 30) {
             const questionMatch = block.match(/^\d+\.\s([\s\S]*?)(?=^[A-D]\))/m);
             if (!questionMatch) return;
 
-            let questionText = questionMatch[1].trim();
-
-            // Clean up question text
-            questionText = questionText
-                .replace(/\n\s*\n/g, '\n\n') // Normalize line breaks
-                .replace(/^\s+|\s+$/g, '') // Trim whitespace
-                .trim();
+            let questionText = cleanContent(questionMatch[1].trim());
 
             if (!questionText.endsWith('?')) {
                 questionText += '?';
@@ -122,7 +140,7 @@ function parseMCQResponse(response, numberOfQuestions = 30) {
                 if (optionStart) {
                     // Save previous option if exists
                     if (inOption && currentOption && optionLetter) {
-                        optionsArray[optionLetter.charCodeAt(0) - 65] = currentOption.trim();
+                        optionsArray[optionLetter.charCodeAt(0) - 65] = cleanContent(currentOption.trim());
                     }
 
                     // Start new option
@@ -135,7 +153,7 @@ function parseMCQResponse(response, numberOfQuestions = 30) {
                 } else if (line.startsWith('CORRECT:')) {
                     // Save last option before processing correct answer
                     if (inOption && currentOption && optionLetter) {
-                        optionsArray[optionLetter.charCodeAt(0) - 65] = currentOption.trim();
+                        optionsArray[optionLetter.charCodeAt(0) - 65] = cleanContent(currentOption.trim());
                     }
                     inOption = false;
 
@@ -155,6 +173,7 @@ function parseMCQResponse(response, numberOfQuestions = 30) {
                             break;
                         }
                     }
+                    explanation = cleanContent(explanation);
                     break;
                 }
             }
@@ -186,6 +205,27 @@ function parseMCQResponse(response, numberOfQuestions = 30) {
     });
 
     return questions.slice(0, numberOfQuestions);
+}
+
+// Add additional uniqueness by shuffling options within each question
+function addQuestionVariations(questions) {
+    return questions.map(question => {
+        // Create a mapping of original options to shuffled positions
+        const optionIndices = [0, 1, 2, 3];
+        const shuffledIndices = [...optionIndices].sort(() => Math.random() - 0.5);
+
+        // Create new shuffled options array
+        const shuffledOptions = shuffledIndices.map(index => question.options[index]);
+
+        // Find the new position of the correct answer
+        const newCorrectAnswerIndex = shuffledIndices.indexOf(question.correctAnswer);
+
+        return {
+            ...question,
+            options: shuffledOptions,
+            correctAnswer: newCorrectAnswerIndex
+        };
+    });
 }// Evaluate MCQ answers using AI
 async function evaluateAnswers(questions, userAnswers, userInfo, timeSpent = 0) {
     const { name, email } = userInfo;
@@ -343,10 +383,10 @@ async function sendResultsEmail(userInfo, results, topic) {
     await transporter.sendMail(mailOptions);
 }
 
-// Generate MCQ test
+// Generate MCQ test with enhanced uniqueness
 router.post('/generate', async (req, res) => {
     try {
-        const { topic, difficulty = 'medium', numberOfQuestions = 30 } = req.body;
+        const { topic, difficulty = 'medium', numberOfQuestions = 30, userEmail } = req.body;
 
         if (!topic) {
             return res.status(400).json({
@@ -355,7 +395,13 @@ router.post('/generate', async (req, res) => {
             });
         }
 
-        console.log(`Generating MCQ test for topic: ${topic} with ${numberOfQuestions} questions`);
+        // Add user-specific and time-based uniqueness factors
+        const sessionId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        const userHash = userEmail ? userEmail.split('@')[0] : 'anonymous';
+
+        console.log(`Generating UNIQUE MCQ test for topic: ${topic} with ${numberOfQuestions} questions (Session: ${sessionId})`);
+
+        // Generate questions with uniqueness factors
         const questions = await generateMCQQuestions(topic, difficulty, numberOfQuestions);
 
         if (questions.length < numberOfQuestions) {
@@ -365,17 +411,25 @@ router.post('/generate', async (req, res) => {
             });
         }
 
-        // Remove correct answers and explanations from response
-        const questionsForTest = questions.map(({ correctAnswer, explanation, ...question }) => question);
+        // Add variations by shuffling options within each question
+        const variatedQuestions = addQuestionVariations(questions);
+
+        // Shuffle questions to add another layer of uniqueness
+        const shuffledQuestions = variatedQuestions.sort(() => Math.random() - 0.5);
+
+        // Remove correct answers and explanations from response for frontend
+        const questionsForTest = shuffledQuestions.map(({ correctAnswer, explanation, ...question }) => question);
 
         res.json({
             success: true,
             data: {
                 questions: questionsForTest,
+                questionsWithAnswers: shuffledQuestions, // Include questions with correct answers for evaluation
                 topic,
                 difficulty,
-                totalQuestions: questions.length,
-                timeLimit: 45 // 45 minutes
+                totalQuestions: shuffledQuestions.length,
+                timeLimit: 45, // 45 minutes
+                sessionId: sessionId // Track session for uniqueness
             }
         });
 
@@ -391,7 +445,7 @@ router.post('/generate', async (req, res) => {
 // Submit MCQ test answers
 router.post('/submit', async (req, res) => {
     try {
-        const { topic, answers, userInfo, numberOfQuestions = 30, timeSpent = 0 } = req.body;
+        const { topic, answers, userInfo, numberOfQuestions = 30, timeSpent = 0, questions } = req.body;
 
         if (!topic || !answers || !userInfo || !userInfo.name || !userInfo.email) {
             return res.status(400).json({
@@ -402,11 +456,19 @@ router.post('/submit', async (req, res) => {
 
         console.log(`Evaluating MCQ test for: ${userInfo.email}`);
 
-        // Re-generate questions to get correct answers with the same number of questions
-        const questions = await generateMCQQuestions(topic, 'medium', numberOfQuestions);
+        let questionsWithAnswers;
+
+        // Use provided questions if available, otherwise regenerate (fallback for old tests)
+        if (questions && Array.isArray(questions) && questions.length > 0) {
+            questionsWithAnswers = questions;
+            console.log(`Using provided questions for evaluation (${questions.length} questions)`);
+        } else {
+            console.log('No questions provided, regenerating questions for evaluation (this may cause inconsistency)');
+            questionsWithAnswers = await generateMCQQuestions(topic, 'medium', numberOfQuestions);
+        }
 
         // Evaluate answers
-        const results = await evaluateAnswers(questions, answers, userInfo, timeSpent);
+        const results = await evaluateAnswers(questionsWithAnswers, answers, userInfo, timeSpent);
 
         // Send results email
         try {

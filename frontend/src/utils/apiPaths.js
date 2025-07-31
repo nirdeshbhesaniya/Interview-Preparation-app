@@ -8,6 +8,13 @@ export const API = {
   FORGOT_PASSWORD: `${API_BASE_URL}/auth/forgot-password`,
   VERIFY_OTP: `${API_BASE_URL}/auth/verify-otp`,
   RESET_PASSWORD: `${API_BASE_URL}/auth/reset-password`,
+  PROFILE: {
+    GET: `${API_BASE_URL}/profile`,
+    UPDATE: `${API_BASE_URL}/profile/update`,
+    UPLOAD_PHOTO: `${API_BASE_URL}/profile/upload-photo`,
+    CHANGE_PASSWORD: `${API_BASE_URL}/profile/change-password`,
+    DELETE_ACCOUNT: `${API_BASE_URL}/profile/delete-account`
+  },
   INTERVIEW: {
     GET_ALL: `${API_BASE_URL}/interview`,
     CREATE: `${API_BASE_URL}/interview`,
