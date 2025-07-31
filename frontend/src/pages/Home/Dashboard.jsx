@@ -333,7 +333,7 @@ export const Dashboard = () => {
           <>
             {/* Grid View - Enhanced Mobile Responsive */}
             {viewMode === 'grid' ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
                 {filteredCards.map((card, index) => {
                   const gradient = gradients[index % gradients.length];
                   const showDelete = card.creatorEmail === userEmail;

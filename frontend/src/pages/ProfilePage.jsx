@@ -254,14 +254,14 @@ const ProfilePage = () => {
             </Card>
 
             {/* Profile Form */}
-            <Card className="p-6">
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                    <User className="w-5 h-5 text-orange-500" />
+            <Card className="p-4 sm:p-6">
+                <h3 className="text-base sm:text-lg font-semibold mb-4 flex items-center gap-2">
+                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500" />
                     Personal Information
                 </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                    <div className="sm:col-span-1">
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Full Name
                         </label>
@@ -270,11 +270,11 @@ const ProfilePage = () => {
                             value={profileData.fullName}
                             onChange={(e) => handleInputChange('fullName', e.target.value)}
                             disabled={!isEditing}
-                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-gray-700 dark:text-white disabled:bg-gray-50 disabled:cursor-not-allowed"
+                            className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-gray-700 dark:text-white disabled:bg-gray-50 disabled:cursor-not-allowed"
                         />
                     </div>
 
-                    <div>
+                    <div className="sm:col-span-1">
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Email Address
                         </label>
@@ -282,12 +282,12 @@ const ProfilePage = () => {
                             type="email"
                             value={profileData.email}
                             disabled
-                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 cursor-not-allowed text-gray-500"
+                            className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 cursor-not-allowed text-gray-500"
                         />
                         <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
                     </div>
 
-                    <div className="md:col-span-2">
+                    <div className="sm:col-span-2">
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Bio
                         </label>
@@ -297,7 +297,7 @@ const ProfilePage = () => {
                             disabled={!isEditing}
                             rows={3}
                             placeholder="Tell us about yourself..."
-                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-gray-700 dark:text-white disabled:bg-gray-50 disabled:cursor-not-allowed resize-none"
+                            className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-gray-700 dark:text-white disabled:bg-gray-50 disabled:cursor-not-allowed resize-none"
                         />
                     </div>
 
@@ -499,72 +499,75 @@ const ProfilePage = () => {
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
             {/* Header */}
             <div className="bg-white dark:bg-gray-800 shadow-sm">
-                <div className="max-w-6xl mx-auto px-4 py-4">
-                    <div className="flex items-center gap-4">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                    <div className="flex items-center gap-3 sm:gap-4">
                         <button
                             onClick={() => navigate(-1)}
                             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors hover:scale-105 active:scale-95"
                         >
-                            <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 dark:text-gray-400" />
                         </button>
-                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Profile Settings</h1>
+                        <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white">Profile Settings</h1>
                     </div>
                 </div>
             </div>
 
             {/* Main Content */}
-            <div className="max-w-6xl mx-auto px-4 py-8">
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                    {/* Sidebar */}
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                    {/* Sidebar - Mobile: Horizontal scroll, Desktop: Vertical */}
                     <div className="lg:col-span-1">
-                        <Card className="p-4">
-                            <nav className="space-y-2">
-                                <button
-                                    onClick={() => setActiveTab('profile')}
-                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${activeTab === 'profile'
+                        <Card className="p-3 sm:p-4">
+                            {/* Mobile: Horizontal navigation */}
+                            <nav className="lg:space-y-2">
+                                <div className="flex lg:flex-col gap-2 lg:gap-0 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0">
+                                    <button
+                                        onClick={() => setActiveTab('profile')}
+                                        className={`flex-shrink-0 lg:w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-left transition-colors text-sm sm:text-base ${activeTab === 'profile'
                                             ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400'
                                             : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700'
-                                        }`}
-                                >
-                                    <User className="w-5 h-5" />
-                                    Profile
-                                </button>
-                                <button
-                                    onClick={() => setActiveTab('preferences')}
-                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${activeTab === 'preferences'
+                                            }`}
+                                    >
+                                        <User className="w-4 h-4 sm:w-5 sm:h-5" />
+                                        <span className="whitespace-nowrap">Profile</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveTab('preferences')}
+                                        className={`flex-shrink-0 lg:w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-left transition-colors text-sm sm:text-base ${activeTab === 'preferences'
                                             ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400'
                                             : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700'
-                                        }`}
-                                >
-                                    <Bell className="w-5 h-5" />
-                                    Preferences
-                                </button>
-                                <button
-                                    onClick={() => setActiveTab('security')}
-                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${activeTab === 'security'
+                                            }`}
+                                    >
+                                        <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
+                                        <span className="whitespace-nowrap">Preferences</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveTab('security')}
+                                        className={`flex-shrink-0 lg:w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-left transition-colors text-sm sm:text-base ${activeTab === 'security'
                                             ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400'
                                             : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700'
-                                        }`}
-                                >
-                                    <Shield className="w-5 h-5" />
-                                    Security
-                                </button>
+                                            }`}
+                                    >
+                                        <Shield className="w-4 h-4 sm:w-5 sm:h-5" />
+                                        <span className="whitespace-nowrap">Security</span>
+                                    </button>
+                                </div>
                             </nav>
                         </Card>
                     </div>
 
                     {/* Content */}
                     <div className="lg:col-span-3">
-                        <div className="animate-fade-in">
+                        <div className="animate-fade-in space-y-4 sm:space-y-6">
                             {activeTab === 'profile' && renderProfileTab()}
                             {activeTab === 'preferences' && (
-                                <Card className="p-6">
+                                <Card className="p-4 sm:p-6">
                                     <h3 className="text-lg font-semibold mb-4">Preferences</h3>
                                     <p className="text-gray-600">Preferences settings coming soon...</p>
                                 </Card>
                             )}
                             {activeTab === 'security' && (
-                                <Card className="p-6">
+                                <Card className="p-4 sm:p-6">
                                     <h3 className="text-lg font-semibold mb-4">Security Settings</h3>
                                     <p className="text-gray-600">Security settings coming soon...</p>
                                 </Card>

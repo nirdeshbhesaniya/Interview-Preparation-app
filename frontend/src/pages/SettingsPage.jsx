@@ -77,75 +77,75 @@ const SettingsPage = () => {
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
             {/* Header */}
             <div className="bg-white dark:bg-gray-800 shadow-sm">
-                <div className="max-w-6xl mx-auto px-4 py-4">
-                    <div className="flex items-center gap-4">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                    <div className="flex items-center gap-3 sm:gap-4">
                         <button
                             onClick={() => navigate(-1)}
                             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors hover:scale-105 active:scale-95"
                         >
-                            <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 dark:text-gray-400" />
                         </button>
-                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Settings</h1>
+                        <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white">Settings</h1>
                     </div>
                 </div>
             </div>
 
             {/* Main Content */}
-            <div className="max-w-4xl mx-auto px-4 py-8">
-                <div className="space-y-8">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+                <div className="space-y-4 sm:space-y-6 lg:space-y-8">
                     {/* Notifications */}
-                    <Card className="p-6">
-                        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                            <Bell className="w-5 h-5 text-blue-500" />
+                    <Card className="p-4 sm:p-6">
+                        <h3 className="text-base sm:text-lg font-semibold mb-4 flex items-center gap-2">
+                            <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
                             Notification Preferences
                         </h3>
 
-                        <div className="space-y-4">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="font-medium">Email Notifications</p>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400">Receive updates via email</p>
+                        <div className="space-y-4 sm:space-y-6">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                                <div className="flex-1">
+                                    <p className="font-medium text-sm sm:text-base">Email Notifications</p>
+                                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Receive updates via email</p>
                                 </div>
-                                <label className="relative inline-flex items-center cursor-pointer">
+                                <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
                                     <input
                                         type="checkbox"
                                         checked={settings.notifications.email}
                                         onChange={(e) => handleSettingChange('notifications', 'email', e.target.checked)}
                                         className="sr-only peer"
                                     />
-                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                    <div className="w-10 h-5 sm:w-11 sm:h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                                 </label>
                             </div>
 
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="font-medium">Test Reminders</p>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400">Reminders for scheduled tests</p>
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                                <div className="flex-1">
+                                    <p className="font-medium text-sm sm:text-base">Test Reminders</p>
+                                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Reminders for scheduled tests</p>
                                 </div>
-                                <label className="relative inline-flex items-center cursor-pointer">
+                                <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
                                     <input
                                         type="checkbox"
                                         checked={settings.notifications.testReminders}
                                         onChange={(e) => handleSettingChange('notifications', 'testReminders', e.target.checked)}
                                         className="sr-only peer"
                                     />
-                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                    <div className="w-10 h-5 sm:w-11 sm:h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                                 </label>
                             </div>
 
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="font-medium">Weekly Progress Report</p>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400">Weekly summary of your activities</p>
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                                <div className="flex-1">
+                                    <p className="font-medium text-sm sm:text-base">Weekly Progress Report</p>
+                                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Weekly summary of your activities</p>
                                 </div>
-                                <label className="relative inline-flex items-center cursor-pointer">
+                                <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
                                     <input
                                         type="checkbox"
                                         checked={settings.notifications.weeklyReport}
                                         onChange={(e) => handleSettingChange('notifications', 'weeklyReport', e.target.checked)}
                                         className="sr-only peer"
                                     />
-                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                    <div className="w-10 h-5 sm:w-11 sm:h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                                 </label>
                             </div>
                         </div>
@@ -165,8 +165,8 @@ const SettingsPage = () => {
                                     <button
                                         onClick={() => handleSettingChange('appearance', 'theme', 'light')}
                                         className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${settings.appearance.theme === 'light'
-                                                ? 'bg-blue-50 border-blue-300 text-blue-700'
-                                                : 'border-gray-300 hover:bg-gray-50'
+                                            ? 'bg-blue-50 border-blue-300 text-blue-700'
+                                            : 'border-gray-300 hover:bg-gray-50'
                                             }`}
                                     >
                                         <Sun className="w-4 h-4" />
@@ -175,8 +175,8 @@ const SettingsPage = () => {
                                     <button
                                         onClick={() => handleSettingChange('appearance', 'theme', 'dark')}
                                         className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${settings.appearance.theme === 'dark'
-                                                ? 'bg-blue-50 border-blue-300 text-blue-700'
-                                                : 'border-gray-300 hover:bg-gray-50'
+                                            ? 'bg-blue-50 border-blue-300 text-blue-700'
+                                            : 'border-gray-300 hover:bg-gray-50'
                                             }`}
                                     >
                                         <Moon className="w-4 h-4" />
